@@ -1,5 +1,6 @@
 #!/usr/bin/python
-#Rick's change
+#test2
+
 from btpeer import *
 
 PEERNAME = "NAME"   # request a peer's canonical id
