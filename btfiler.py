@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#test2
+#Rick's change
 
 from btpeer import *
 
