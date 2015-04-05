@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#test comment
 
 # btpeer.py
 

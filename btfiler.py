@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#christina's comment
 
 from btpeer import *
 
