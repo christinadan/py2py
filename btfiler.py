@@ -231,7 +231,7 @@ class FilerPeer(BTPeer):
 	    peerconn.senddata(ERROR, 'File not found')
 	    return
 	try:
-	    fd = file(fname, 'r')
+	    fd = file(fname, 'rb')
 	    filedata = ''
 	    while True:
 		data = fd.read(2048)

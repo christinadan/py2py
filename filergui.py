@@ -168,7 +168,7 @@ class BTGui(Frame):
             fname,host,port = sel
             resp = self.btpeer.connectandsend( host, port, FILEGET, fname )
             if len(resp) and resp[0][0] == REPLY:
-               fd = file( fname, 'w' )
+               fd = file( fname, 'wb' )
                fd.write( resp[0][1] )
                fd.close()
                self.btpeer.files[fname] = None  # because it's local now
