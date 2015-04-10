@@ -156,7 +156,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "py2py"))
         self.peerButton.setText(_translate("MainWindow", "Peers"))
         self.rebuildButton.setText(_translate("MainWindow", "Rebuild"))
         self.fileLabel.setText(_translate("MainWindow", "Network Files"))

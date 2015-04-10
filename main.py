@@ -1,4 +1,6 @@
 import sys
+import threading
+
 from PyQt5.Qt import *
 from ui_mainwindow import Ui_MainWindow
 
@@ -16,9 +18,11 @@ class MainWindow(QMainWindow):
         self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
         self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
 
+def main():
+    app = QApplication(sys.argv)
+    m = MainWindow()
+    m.show();
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-	app = QApplication(sys.argv)
-	m = MainWindow()
-	m.show();
-	sys.exit(app.exec_())
+    main()
