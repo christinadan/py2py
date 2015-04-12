@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# btpeer.py
+#peer.py
+
+#Based off tutorial found at: http://cs.berry.edu/~nhamid/p2p/
 
 import socket
 import struct
@@ -9,24 +11,23 @@ import time
 import traceback
 
 
-def btdebug( msg ):
-    """ Prints a messsage to the screen with the name of the current thread """
+def debug( msg ):
+    """ Prints a message to the screen with the name of the current thread """
     print "[%s] %s" % ( str(threading.currentThread().getName()), msg )
 
 
 #==============================================================================
-class BTPeer:
+class Peer:
     """ Implements the core functionality that might be used by a peer in a
     P2P network.
 
     """
 
     #--------------------------------------------------------------------------
-    def __init__( self, maxpeers, serverport, myid=None, serverhost = None ):
+    def __init__( self, serverport, myid=None, serverhost = None ):
     #--------------------------------------------------------------------------
 	""" Initializes a peer servent (sic.) with the ability to catalog
-	information for up to maxpeers number of peers (maxpeers may
-	be set to 0 to allow unlimited number of peers), listening on
+	information for an unlimited number of peers, listening on
 	a given server port , with a given canonical peer name (id)
 	and host address. If not supplied, the host address
 	(serverhost) will be determined by attempting to connect to an
@@ -35,7 +36,6 @@ class BTPeer:
 	"""
 	self.debug = 1
 
-	self.maxpeers = int(maxpeers)
 	self.serverport = int(serverport)
 	if serverhost: self.serverhost = serverhost
 	else: self.__initserverhost()
@@ -72,7 +72,7 @@ class BTPeer:
     def __debug( self, msg ):
     #--------------------------------------------------------------------------
 	if self.debug:
-	    btdebug( msg )
+	    debug( msg )
 
 
 
@@ -89,7 +89,7 @@ class BTPeer:
 	self.__debug( 'Connected ' + str(clientsock.getpeername()) )
 
 	host, port = clientsock.getpeername()
-	peerconn = BTPeerConnection( None, host, port, clientsock, debug=False )
+	peerconn = PeerConnection( None, host, port, clientsock, debug=False )
 	
 	try:
 	    msgtype, msgdata = peerconn.recvdata()
@@ -174,8 +174,7 @@ class BTPeer:
 	""" Adds a peer name and host:port mapping to the known list of peers.
 	
 	"""
-	if peerid not in self.peers and (self.maxpeers == 0 or
-					 len(self.peers) < self.maxpeers):
+	if peerid not in self.peers:
 	    self.peers[ peerid ] = (host, int(port))
 	    return True
 	else:
@@ -247,19 +246,6 @@ class BTPeer:
 
     
     #--------------------------------------------------------------------------
-    def maxpeersreached( self ):
-    #--------------------------------------------------------------------------
-	""" Returns whether the maximum limit of names has been added to the
-	list of known peers. Always returns True if maxpeers is set to
-	0.
-
-	"""
-	assert self.maxpeers == 0 or len(self.peers) <= self.maxpeers
-	return self.maxpeers > 0 and len(self.peers) == self.maxpeers
-
-
-
-    #--------------------------------------------------------------------------
     def makeserversocket( self, port, backlog=5 ):
     #--------------------------------------------------------------------------
 	""" Constructs and prepares a server socket listening on the given 
@@ -317,7 +303,7 @@ class BTPeer:
 	"""
 	msgreply = []
 	try:
-	    peerconn = BTPeerConnection( pid, host, port, debug=self.debug )
+	    peerconn = PeerConnection( pid, host, port, debug=self.debug )
 	    peerconn.senddata( msgtype, msgdata )
 	    self.__debug( 'Sent %s: %s' % (pid, msgtype) )
 	    
@@ -355,7 +341,7 @@ class BTPeer:
 	    try:
 		self.__debug( 'Check live %s' % pid )
 		host,port = self.peers[pid]
-		peerconn = BTPeerConnection( pid, host, port, debug=self.debug )
+		peerconn = PeerConnection( pid, host, port, debug=self.debug )
 		peerconn.senddata( 'PING', '' )
 		isconnected = True
 	    except:
@@ -406,17 +392,17 @@ class BTPeer:
 
     # end mainloop method
 
-# end BTPeer class
+# end Peer class
 
 
 
 
-# **********************************************************
+# ******************	****************************************
 
 
 
 
-class BTPeerConnection:
+class PeerConnection:
 
     #--------------------------------------------------------------------------
     def __init__( self, peerid, host, port, sock=None, debug=False ):
@@ -447,7 +433,7 @@ class BTPeerConnection:
     def __debug( self, msg ):
     #--------------------------------------------------------------------------
 	if self.debug:
-	    btdebug( msg )
+	    debug( msg )
 
 
     #--------------------------------------------------------------------------

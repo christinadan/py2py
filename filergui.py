@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
-# btgui.py by Nadeem Abdul Hamid
+# filergui.py
+
+#Based off tutorial found at: http://cs.berry.edu/~nhamid/p2p/
 
 """
-Module implementing simple BerryTella GUI for a simple p2p network.
+Module implementing simple GUI for a simple p2p network.
 """
 
 
@@ -13,28 +15,28 @@ import threading
 from Tkinter import *
 from random import *
 
-from btfiler import *
+from filer import *
 
 
-class BTGui(Frame):
-   def __init__( self, firstpeer, hops=2, maxpeers=5, serverport=5678, master=None ):
+class Gui(Frame):
+   def __init__( self, firstpeer, hops=2, serverport=5678, master=None ):
       Frame.__init__( self, master )
       self.grid()
       self.createWidgets()
-      self.master.title( "BerryTella Filer GUI %d" % serverport )
-      self.btpeer = FilerPeer( maxpeers, serverport )
+      self.master.title( "Filer GUI %d" % serverport )
+      self.peer = FilerPeer( serverport )
       
       self.bind( "<Destroy>", self.__onDestroy )
 
       host,port = firstpeer.split(':')
-      self.btpeer.buildpeers( host, int(port), hops=hops )
+      self.peer.buildpeers( host, int(port), hops=hops )
       self.updatePeerList()
 
-      t = threading.Thread( target = self.btpeer.mainloop, args = [] )
+      t = threading.Thread( target = self.peer.mainloop, args = [] )
       t.start()
       
-      self.btpeer.startstabilizer( self.btpeer.checklivepeers, 3 )
-#      self.btpeer.startstabilizer( self.onRefresh, 3 )
+      self.peer.startstabilizer( self.peer.checklivepeers, 3 )
+#      self.peer.startstabilizer( self.onRefresh, 3 )
       self.after( 3000, self.onTimer )
       
       
@@ -45,21 +47,21 @@ class BTGui(Frame):
 
       
    def __onDestroy( self, event ):
-      self.btpeer.shutdown = True
+      self.peer.shutdown = True
 
 
    def updatePeerList( self ):
       if self.peerList.size() > 0:
          self.peerList.delete(0, self.peerList.size() - 1)
-      for p in self.btpeer.getpeerids():
+      for p in self.peer.getpeerids():
          self.peerList.insert( END, p )
 
 
    def updateFileList( self ):
       if self.fileList.size() > 0:
          self.fileList.delete(0, self.fileList.size() - 1)
-      for f in self.btpeer.files:
-         p = self.btpeer.files[f]
+      for f in self.peer.files:
+         p = self.peer.files[f]
          if not p:
             p = '(local)'
          self.fileList.insert( END, "%s:%s" % (f,p) )
@@ -146,7 +148,7 @@ class BTGui(Frame):
       file = self.addfileEntry.get()
       if file.lstrip().rstrip():
          filename = file.lstrip().rstrip()
-         self.btpeer.addlocalfile( filename )
+         self.peer.addlocalfile( filename )
       self.addfileEntry.delete( 0, len(file) )
       self.updateFileList()
 
@@ -155,9 +157,9 @@ class BTGui(Frame):
       key = self.searchEntry.get()
       self.searchEntry.delete( 0, len(key) )
 
-      for p in self.btpeer.getpeerids():
-         self.btpeer.sendtopeer( p, 
-                                 QUERY, "%s %s 4" % ( self.btpeer.myid, key ) )
+      for p in self.peer.getpeerids():
+         self.peer.sendtopeer( p, 
+                                 QUERY, "%s %s 4" % ( self.peer.myid, key ) )
 
 
    def onFetch(self):
@@ -166,20 +168,20 @@ class BTGui(Frame):
          sel = self.fileList.get(sels[0]).split(':')
          if len(sel) > 2:  # fname:host:port
             fname,host,port = sel
-            resp = self.btpeer.connectandsend( host, port, FILEGET, fname )
+            resp = self.peer.connectandsend( host, port, FILEGET, fname )
             if len(resp) and resp[0][0] == REPLY:
                fd = file( fname, 'wb' )
                fd.write( resp[0][1] )
                fd.close()
-               self.btpeer.files[fname] = None  # because it's local now
+               self.peer.files[fname] = None  # because it's local now
 
 
    def onRemove(self):
       sels = self.peerList.curselection()
       if len(sels)==1:
          peerid = self.peerList.get(sels[0])
-         self.btpeer.sendtopeer( peerid, PEERQUIT, self.btpeer.myid )
-         self.btpeer.removepeer( peerid )
+         self.peer.sendtopeer( peerid, PEERQUIT, self.peer.myid )
+         self.peer.removepeer( peerid )
 
 
    def onRefresh(self):
@@ -188,19 +190,18 @@ class BTGui(Frame):
 
 
    def onRebuild(self):
-      if not self.btpeer.maxpeersreached():
-         peerid = self.rebuildEntry.get()
-         self.rebuildEntry.delete( 0, len(peerid) )
-         peerid = peerid.lstrip().rstrip()
-         try:
-            host,port = peerid.split(':')
-            #print "doing rebuild", peerid, host, port
-            self.btpeer.buildpeers( host, port, hops=3 )
-         except:
-            if self.btpeer.debug:
-               traceback.print_exc()
-#         for peerid in self.btpeer.getpeerids():
-#            host,port = self.btpeer.getpeer( peerid )
+	 peerid = self.rebuildEntry.get()
+	 self.rebuildEntry.delete( 0, len(peerid) )
+	 peerid = peerid.lstrip().rstrip()
+	 try:
+		host,port = peerid.split(':')
+		#print "doing rebuild", peerid, host, port
+		self.peer.buildpeers( host, port, hops=3 )
+	 except:
+		if self.peer.debug:
+		   traceback.print_exc()
+#         for peerid in self.peer.getpeerids():
+#            host,port = self.peer.getpeer( peerid )
 
 
 
@@ -208,14 +209,13 @@ class BTGui(Frame):
 
 
 def main():
-   if len(sys.argv) < 4:
-      print "Syntax: %s server-port max-peers peer-ip:port" % sys.argv[0]
+   if len(sys.argv) < 3:
+      print "Syntax: %s server-port peer-ip:port" % sys.argv[0]
       sys.exit(-1)
 
    serverport = int(sys.argv[1])
-   maxpeers = sys.argv[2]
-   peerid = sys.argv[3]
-   app = BTGui( firstpeer=peerid, maxpeers=maxpeers, serverport=serverport )
+   peerid = sys.argv[2]
+   app = Gui( firstpeer=peerid, serverport=serverport )
    app.mainloop()
 
 

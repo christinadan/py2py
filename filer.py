@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
-from btpeer import *
+#filer.py
+
+#Based off tutorial found at: http://cs.berry.edu/~nhamid/p2p/
+
+from peer import *
 
 PEERNAME = "NAME"   # request a peer's canonical id
 LISTPEERS = "LIST"
@@ -18,23 +22,23 @@ ERROR = "ERRO"
 #   peer id's in this application are just "host:port" strings
 
 #==============================================================================
-class FilerPeer(BTPeer):
+class FilerPeer(Peer):
 #==============================================================================
     """ Implements a file-sharing peer-to-peer entity based on the generic
-    BerryTella P2P framework.
+    P2P framework.
 
     """
 
     #--------------------------------------------------------------------------
-    def __init__(self, maxpeers, serverport):
+    def __init__(self, serverport):
     #--------------------------------------------------------------------------
-	""" Initializes the peer to support connections up to maxpeers number
+	""" Initializes the peer to support connections with an unlimited number
 	of peers, with its server listening on the specified port. Also sets
 	the dictionary of local files to empty and adds handlers to the 
-	BTPeer framework.
+	Peer framework.
 
 	"""
-	BTPeer.__init__(self, maxpeers, serverport)
+	Peer.__init__(self, serverport)
 	
 	self.files = {}  # available files: name --> peerid mapping
 
@@ -59,7 +63,7 @@ class FilerPeer(BTPeer):
     def __debug(self, msg):
     #--------------------------------------------------------------------------
 	if self.debug:
-	    btdebug(msg)
+	    debug(msg)
 
 
 
@@ -89,12 +93,6 @@ class FilerPeer(BTPeer):
 	try:
 	    try:
 		peerid,host,port = data.split()
-
-		if self.maxpeersreached():
-		    self.__debug('maxpeers %d reached: connection terminating' 
-				  % self.maxpeers)
-		    peerconn.senddata(ERROR, 'Join: too many peers')
-		    return
 
 		# peerid = '%s:%s' % (host,port)
 		if peerid not in self.getpeerids() and peerid != self.myid:
@@ -281,13 +279,12 @@ class FilerPeer(BTPeer):
     #--------------------------------------------------------------------------
 	""" buildpeers(host, port, hops) 
 
-	Attempt to build the local peer list up to the limit stored by
-	self.maxpeers, using a simple depth-first search given an
+	Attempt to build the local peer list, using a simple depth-first search given an
 	initial host and port as starting point. The depth of the
 	search is limited by the hops parameter.
 
 	"""
-	if self.maxpeersreached() or not hops:
+	if not hops:
 	    return
 
 	peerid = None
