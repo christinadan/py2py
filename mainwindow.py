@@ -3,7 +3,7 @@ import threading
 
 from PyQt5.Qt import *
 from ui_mainwindow import Ui_MainWindow
-from ui_dialog import Ui_Dialog
+from connectiondialog import ConnectionDialog
 from random import *
 from btfiler import *
 
@@ -20,3 +20,9 @@ class MainWindow(QMainWindow):
         self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
         self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+
+        self.connectionPopup()
+
+    def connectionPopup(self):
+        self.connectionDialog = ConnectionDialog()
+        self.connectionDialog.exec_()
