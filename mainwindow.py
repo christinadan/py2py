@@ -2,13 +2,12 @@ import sys
 import threading
 
 from PyQt5.Qt import *
-from ui_mainwindow import Ui_MainWindow
-from ui_dialog import Ui_Dialog
+from Generated.ui_mainwindow import Ui_MainWindow
+from connectiondialog import ConnectionDialog
 from random import *
 from filer import *
 
 class MainWindow(QMainWindow):
-	
 	def __init__(self, firstpeer, hops=2, serverport=12345, master=None ):
 		super(MainWindow, self).__init__()
 
@@ -21,6 +20,8 @@ class MainWindow(QMainWindow):
 		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
 		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
 
+		self.connectionPopup()
+		#Add signal to do the rest of this in another function on connection dialog close event
 		#Initialize connection settings
 		#self.show()
 		self.peer = FilerPeer( serverport )
@@ -37,6 +38,10 @@ class MainWindow(QMainWindow):
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
 		#self.peer.startstabilizer( self.onRefresh, 3 )
 		#self.after( 3000, self.onTimer )
+		
+	def connectionPopup(self):
+        self.connectionDialog = ConnectionDialog()
+        self.connectionDialog.exec_()
 		
 	def onTimer( self ):
 		#Refresh every 3 seconds, using after from Tkinter
@@ -122,4 +127,5 @@ class MainWindow(QMainWindow):
 				traceback.print_exc()
 				#         for peerid in self.peer.getpeerids():
 				#            host,port = self.peer.getpeer( peerid )'''
+				
 				
