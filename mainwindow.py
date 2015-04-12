@@ -23,10 +23,7 @@ class MainWindow(QMainWindow):
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
 		#Initialize connection settings
-		#self.show()
 		self.peer = FilerPeer( serverport )
-
-		#self.bind( "<Destroy>", self.__onDestroy )
 
 		host,port = firstpeer.split(':')
 		self.peer.buildpeers( host, int(port), hops=hops )
@@ -40,8 +37,8 @@ class MainWindow(QMainWindow):
 		#self.after( 3000, self.onTimer )
 		
 	def connectionPopup(self):
-        self.connectionDialog = ConnectionDialog()
-        self.connectionDialog.exec_()
+		self.connectionDialog = ConnectionDialog()
+		self.connectionDialog.exec_()
 		
 	def onTimer( self ):
 		#Refresh every 3 seconds, using after from Tkinter
@@ -49,8 +46,9 @@ class MainWindow(QMainWindow):
 		self.after( 3000, self.onTimer )
 		#self.after_idle( self.onTimer )'''
 		
-	def __onDestroy( self, event ):
+	def closeEvent(self, event):
 		self.peer.shutdown = True
+		event.accept() # let the window close
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()

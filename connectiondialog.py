@@ -21,7 +21,7 @@ class ConnectionDialog(QDialog):
         if peerHost == "":
         	self.ui.peerLineEdit.setText("")
         else:
-        	self.ui.peerLineEdit.setText(peerHost + ":" + peerPort)
+        	self.ui.peerLineEdit.setText(peerHost + ":" + str(peerPort))
 
         if settings.value('checked', "false") == "true":
         	self.ui.rememberSettings.setCheckState(Qt.Checked)
