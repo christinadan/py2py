@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.Qt import *
-from ui_dialog import Ui_Dialog
+from Generated.ui_dialog import Ui_Dialog
 
 class ConnectionDialog(QDialog):
     

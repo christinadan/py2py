@@ -2,7 +2,7 @@ import sys
 import threading
 
 from PyQt5.Qt import *
-from ui_mainwindow import Ui_MainWindow
+from Generated.ui_mainwindow import Ui_MainWindow
 from connectiondialog import ConnectionDialog
 from random import *
 from btfiler import *
