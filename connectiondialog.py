@@ -18,10 +18,11 @@ class ConnectionDialog(QDialog):
         self.ui.setupUi(self)
 
         self.ui.localPortLineEdit.setText(str(localPort))
+        
         if peerHost == "":
         	self.ui.peerLineEdit.setText("")
         else:
-        	self.ui.peerLineEdit.setText(peerHost + ":" + peerPort)
+        	self.ui.peerLineEdit.setText(peerHost + ":" + str(peerPort))
 
         if settings.value('checked', "false") == "true":
         	self.ui.rememberSettings.setCheckState(Qt.Checked)
@@ -33,6 +34,7 @@ class ConnectionDialog(QDialog):
     def setHostInfo(self):
     	localPort = self.ui.localPortLineEdit.text()
     	peerText = self.ui.peerLineEdit.text()
+
     	if peerText != "" and ":" in peerText:
     			peerHost, peerPort = self.ui.peerLineEdit.text().split(':')
     	else:
