@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
 		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
 		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+		self.ui.actionUpload.triggered.connect(self.fileSelect)
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
@@ -33,13 +34,23 @@ class MainWindow(QMainWindow):
 		t.start()
 
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
-		#self.peer.startstabilizer( self.onRefresh, 3 )
-		#self.after( 3000, self.onTimer )
+		self.peer.startstabilizer( self.onRefresh, 3 )
+		self.after( 3000, self.onTimer )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
 		self.connectionDialog.exec_()
-		
+
+	def fileSelect(self):
+		fileDialog = QFileDialog(self)
+		fileDialog.setLabelText(QFileDialog.Accept, 'Upload')
+		fileDialog.setWindowTitle('Choose a File to Upload')
+		fileDialog.exec_()
+		filename = fileDialog.selectedFiles()[0]
+		if not filename == "" and filename:
+			blah = 0
+			#File upload stuff here
+
 	def onTimer( self ):
 		#Refresh every 3 seconds, using after from Tkinter
 		'''self.onRefresh()

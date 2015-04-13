@@ -19,6 +19,7 @@ class ConnectionDialog(QDialog):
         self.ui.setupUi(self)
 
         self.ui.localPortLineEdit.setText(str(localPort))
+        
         if peerHost == "":
         	self.ui.peerLineEdit.setText("")
         else:
@@ -35,6 +36,7 @@ class ConnectionDialog(QDialog):
 	#Sets new values if user changes it
     	localPort = self.ui.localPortLineEdit.text()
     	peerText = self.ui.peerLineEdit.text()
+
     	if peerText != "" and ":" in peerText:
     			peerHost, peerPort = self.ui.peerLineEdit.text().split(':')
     	else:

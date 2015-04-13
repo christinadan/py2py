@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_mainwindow.ui'
+# Form implementation generated from reading ui file 'UI/ui_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.4.1
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(609, 500)
+        MainWindow.resize(770, 400)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralWidget)
@@ -117,6 +117,10 @@ class Ui_MainWindow(object):
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.fetchHorizontalLayout.addItem(spacerItem3)
         self.fetchButton = QtWidgets.QPushButton(self.innerFileFrame)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("Resources/download61.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.fetchButton.setIcon(icon1)
+        self.fetchButton.setIconSize(QtCore.QSize(12, 12))
         self.fetchButton.setObjectName("fetchButton")
         self.fetchHorizontalLayout.addWidget(self.fetchButton)
         self.verticalLayout_5.addLayout(self.fetchHorizontalLayout)
@@ -130,19 +134,17 @@ class Ui_MainWindow(object):
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionRefresh = QtWidgets.QAction(MainWindow)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("Resources/refresh.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionRefresh.setIcon(icon1)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("Resources/refresh.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionRefresh.setIcon(icon2)
         self.actionRefresh.setObjectName("actionRefresh")
         self.actionUpload = QtWidgets.QAction(MainWindow)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("Resources/upload119.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionUpload.setIcon(icon2)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("Resources/upload119.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionUpload.setIcon(icon3)
         self.actionUpload.setObjectName("actionUpload")
         self.actionFetch = QtWidgets.QAction(MainWindow)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("Resources/download61.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionFetch.setIcon(icon3)
+        self.actionFetch.setIcon(icon1)
         self.actionFetch.setObjectName("actionFetch")
         self.actionRebuild = QtWidgets.QAction(MainWindow)
         self.actionRebuild.setObjectName("actionRebuild")
