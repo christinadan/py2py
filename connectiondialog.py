@@ -9,9 +9,10 @@ class ConnectionDialog(QDialog):
         super(ConnectionDialog, self).__init__()
         global settings 
         settings = QSettings()
+		#Use previously used values or uses default values
     	localPort = settings.value("localPort", 5678)
     	peerHost = settings.value("peerHost", "10.0.0.9")
-    	peerPort = settings.value("peerPort", 1234)
+    	peerPort = settings.value("peerPort", 12345)
         
         # Set up the user interface from Creator
         self.ui = Ui_Dialog()
@@ -31,13 +32,14 @@ class ConnectionDialog(QDialog):
         self.ui.connectButton.clicked.connect(self.setHostInfo)
 
     def setHostInfo(self):
+	#Sets new values if user changes it
     	localPort = self.ui.localPortLineEdit.text()
     	peerText = self.ui.peerLineEdit.text()
     	if peerText != "" and ":" in peerText:
     			peerHost, peerPort = self.ui.peerLineEdit.text().split(':')
     	else:
 			peerHost = "10.0.0.9"
-			peerPort = 1234
+			peerPort = 12345
 
 
     	if self.ui.rememberSettings.isChecked():

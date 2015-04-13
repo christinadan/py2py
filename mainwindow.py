@@ -52,10 +52,10 @@ class MainWindow(QMainWindow):
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
-		'''if self.peerList.size() > 0:
-			self.peerList.delete(0, self.peerList.size() - 1)
+		if self.peerList.count() > 0:
+			self.peerList.clear()
 		for p in self.peer.getpeerids():
-			self.peerList.insert( END, p )'''
+			self.ui.peerList.insertItem( self.ui.peerList.currentRow(), p )
 			
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
@@ -108,8 +108,8 @@ class MainWindow(QMainWindow):
 	
 	def onRefresh(self):
 		#Update peer and file list
-		'''self.updatePeerList()
-		self.updateFileList()'''
+		self.updatePeerList()
+		self.updateFileList()
 	
 	def onRebuild(self):
 		#Get peerid from rebuild field and rebuild peer list using self.peer.buildpeers
