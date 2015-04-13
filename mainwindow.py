@@ -24,21 +24,18 @@ class MainWindow(QMainWindow):
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
 		#Initialize connection settings
-		#self.show()
 		self.peer = FilerPeer( serverport )
 
-		#self.bind( "<Destroy>", self.__onDestroy )
+		host,port = firstpeer.split(':')
+		self.peer.buildpeers( host, int(port), hops=hops )
+		self.updatePeerList()
 
-		#host,port = firstpeer.split(':')
-		#self.peer.buildpeers( host, int(port), hops=hops )
-		#self.updatePeerList()
+		t = threading.Thread( target = self.peer.mainloop, args = [] )
+		t.start()
 
-		#t = threading.Thread( target = self.peer.mainloop, args = [] )
-		#t.start()
-
-		#self.peer.startstabilizer( self.peer.checklivepeers, 3 )
-		#self.peer.startstabilizer( self.onRefresh, 3 )
-		#self.after( 3000, self.onTimer )
+		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
+		self.peer.startstabilizer( self.onRefresh, 3 )
+		self.after( 3000, self.onTimer )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -60,8 +57,9 @@ class MainWindow(QMainWindow):
 		self.after( 3000, self.onTimer )
 		#self.after_idle( self.onTimer )'''
 		
-	def __onDestroy( self, event ):
+	def closeEvent(self, event):
 		self.peer.shutdown = True
+		event.accept() # let the window close
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
