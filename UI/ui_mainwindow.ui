@@ -148,6 +148,7 @@
             <widget class="QLabel" name="portLabel">
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>12</pointsize>
               </font>
              </property>

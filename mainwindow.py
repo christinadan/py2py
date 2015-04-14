@@ -29,6 +29,7 @@ class MainWindow( QMainWindow ):
 		#check IP; if good IP, connect; else, use a default
 		self.peer.buildpeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
+		self.ui.portLabel.setText('Server Port: ' + self.connectionDialog.localPort)
 
 		t = threading.Thread( target = self.peer.mainloop, args = [] )
 		t.start()
