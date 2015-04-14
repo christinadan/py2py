@@ -18,13 +18,8 @@ class MainWindow( QMainWindow ):
 		# Make some local modifications to UI
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( QHeaderView.Stretch )
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( 0, QHeaderView.Interactive )
-		self.ui.actionUpload.triggered.connect( self.fileSelect )
-		self.ui.actionRefresh.triggered.connect( self.onRefresh )
-		self.ui.actionFetch.triggered.connect( self.onFetch )
-		self.ui.searchButton.clicked.connect( self.onSearch )
-		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
-		self.ui.showAllButton.clicked.connect( self.onShowAll )
 		self.showAll = True
+		self.connectSignals()
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
@@ -42,6 +37,15 @@ class MainWindow( QMainWindow ):
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
 		#self.peer.startstabilizer( self.onRefresh, 3 )
 		self.onTimer()
+
+	def connectSignals(self):
+		self.ui.actionUpload.triggered.connect( self.fileSelect )
+		self.ui.actionRefresh.triggered.connect( self.onRefresh )
+		self.ui.actionDownload.triggered.connect( self.onDownload )
+		self.ui.searchButton.clicked.connect( self.onSearch )
+		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
+		self.ui.showAllButton.clicked.connect( self.onShowAll )
+		self.ui.rebuildButton.clicked.connect( self.onRebuild )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -141,7 +145,7 @@ class MainWindow( QMainWindow ):
 
 		self.showAll = True
 	
-	def onFetch(self):
+	def onDownload(self):
 		#Get currently selected file from GUI and retrieve said file from network
 		if len( self.ui.fileList.selectedItems() ) > 0:
 			selectedRow = self.ui.fileList.selectedItems()[0].row()
@@ -159,14 +163,6 @@ class MainWindow( QMainWindow ):
 					fd.write( resp[0][1] )
 					fd.close()
 	
-	def onRemove(self):
-		#Get currently selected peer from GUI and remove said peer, sending PEERQUIT msg
-		'''sels = self.peerList.curselection()
-		if len(sels)==1:
-			peerid = self.peerList.get(sels[0])
-			self.peer.sendtopeer( peerid, PEERQUIT, self.peer.myid )
-			self.peer.removepeer( peerid )'''
-	
 	def onRefresh(self):
 		#Update peer and file list
 		self.updatePeerList()
@@ -174,17 +170,18 @@ class MainWindow( QMainWindow ):
 	
 	def onRebuild(self):
 		#Get peerid from rebuild field and rebuild peer list using self.peer.buildpeers
-		'''peerid = self.rebuildEntry.get()
-		self.rebuildEntry.delete( 0, len(peerid) )
-		peerid = peerid.lstrip().rstrip()
+		peer = self.ui.rebuildLineEdit.text()
+		peer = peer.lstrip().rstrip()
+
 		try:
-			host,port = peerid.split(':')
-			#print "doing rebuild", peerid, host, port
-			self.peer.buildpeers( host, port, hops=3 )
+			if peer != "":
+				host,port = peer.split(':')
+				self.peer.buildpeers( host, int(port), hops=3 )
 		except:
 			if self.peer.debug:
 				traceback.print_exc()
 				#         for peerid in self.peer.getpeerids():
-				#            host,port = self.peer.getpeer( peerid )'''
+				#            host,port = self.peer.getpeer( peerid )
+		self.ui.rebuildLineEdit.clear()
 				
 				

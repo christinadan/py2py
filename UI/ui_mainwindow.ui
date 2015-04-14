@@ -89,17 +89,7 @@
         <item>
          <layout class="QHBoxLayout" name="rebuildHorizontalLayout">
           <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           <widget class="QLineEdit" name="rebuildLineEdit"/>
           </item>
           <item>
            <widget class="QPushButton" name="rebuildButton">
@@ -336,7 +326,7 @@
              <item>
               <widget class="QPushButton" name="fetchButton">
                <property name="text">
-                <string>Fetch</string>
+                <string>Download</string>
                </property>
                <property name="icon">
                 <iconset>
@@ -386,7 +376,7 @@
    <addaction name="actionRefresh"/>
    <addaction name="separator"/>
    <addaction name="actionUpload"/>
-   <addaction name="actionFetch"/>
+   <addaction name="actionDownload"/>
   </widget>
   <action name="actionRefresh">
    <property name="icon">
@@ -412,13 +402,13 @@
     <string>Upload a File</string>
    </property>
   </action>
-  <action name="actionFetch">
+  <action name="actionDownload">
    <property name="icon">
     <iconset>
      <normaloff>Resources/download61.png</normaloff>Resources/download61.png</iconset>
    </property>
    <property name="text">
-    <string>Fetch</string>
+    <string>Download</string>
    </property>
    <property name="toolTip">
     <string>Fetch the Selected File</string>
