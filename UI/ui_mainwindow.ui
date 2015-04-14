@@ -247,7 +247,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QTableWidget" name="fileTableWidget">
+            <widget class="QTableWidget" name="fileList">
              <property name="selectionMode">
               <enum>QAbstractItemView::SingleSelection</enum>
              </property>
@@ -268,11 +268,6 @@
              <column>
               <property name="text">
                <string>File</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Date Uploaded</string>
               </property>
              </column>
             </widget>

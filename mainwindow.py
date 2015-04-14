@@ -16,9 +16,9 @@ class MainWindow(QMainWindow):
 		self.ui.setupUi(self)
 
 		# Make some local modifications to UI
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+		self.ui.fileList.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+		self.ui.fileList.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+		self.ui.fileList.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
 		self.ui.actionUpload.triggered.connect(self.fileSelect)
 
 		self.connectionPopup()
@@ -34,8 +34,8 @@ class MainWindow(QMainWindow):
 		t.start()
 
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
-		self.peer.startstabilizer( self.onRefresh, 3 )
-		self.after( 3000, self.onTimer )
+		#self.peer.startstabilizer( self.onRefresh, 3 )
+		#self.after( 3000, self.onTimer )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -63,20 +63,21 @@ class MainWindow(QMainWindow):
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
-		if self.peerList.count() > 0:
-			self.peerList.clear()
+		if self.ui.peerList.count() > 0:
+			self.ui.peerList.clear()
 		for p in self.peer.getpeerids():
 			self.ui.peerList.insertItem( self.ui.peerList.currentRow(), p )
 			
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
-		'''if self.fileList.size() > 0:
-			self.fileList.delete(0, self.fileList.size() - 1)
+		self.ui.fileList.clearContents()
 		for f in self.peer.files:
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
-			self.fileList.insert( END, "%s:%s" % (f,p) )'''
+			self.ui.fileList.insertRow(self.ui.fileList.rowCount())
+			self.ui.fileList.setCellWidget(self.ui.fileList.rowCount(), 0, p)
+			self.ui.fileList.setCellWidget(self.ui.fileList.rowCount(), 1, f)
 		
 	def onAdd(self):
 		#Gets filename from Add field and adds it as a local file using self.peer.addlocalfile( filename )
