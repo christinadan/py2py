@@ -7,35 +7,32 @@ from connectiondialog import ConnectionDialog
 from random import *
 from filer import *
 
-class MainWindow(QMainWindow):
-	def __init__(self, firstpeer, hops=2, serverport=12345, master=None ):
-		super(MainWindow, self).__init__()
+class MainWindow( QMainWindow ):
+	def __init__( self, hops=2, master=None ):
+		super( MainWindow, self ).__init__()
 
 		# Set up the user interface from Creator
 		self.ui = Ui_MainWindow()
-		self.ui.setupUi(self)
+		self.ui.setupUi( self )
 
 		# Make some local modifications to UI
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
-		self.ui.fileTableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
-		self.ui.actionUpload.triggered.connect(self.fileSelect)
+		self.ui.fileList.horizontalHeader().setSectionResizeMode( QHeaderView.Stretch )
+		self.ui.fileList.horizontalHeader().setSectionResizeMode( 0, QHeaderView.Interactive )
+		self.ui.actionUpload.triggered.connect( self.fileSelect )
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
 		#Initialize connection settings
-		self.peer = FilerPeer( self.connectionDialog.localPort )
+		self.peer = FilerPeer( int(self.connectionDialog.localPort) )
 
-		host,port = firstpeer.split(':')
-		print self.connectionDialog.peerHost
-		print self.connectionDialog.peerPort
+		#check IP; if good IP, connect; else, use a default
 		self.peer.buildpeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
 
 		t = threading.Thread( target = self.peer.mainloop, args = [] )
 		t.start()
 
-		#self.peer.startstabilizer( self.peer.checklivepeers, 3 )
+		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
 		#self.peer.startstabilizer( self.onRefresh, 3 )
 		#self.after( 3000, self.onTimer )
 		
@@ -44,14 +41,14 @@ class MainWindow(QMainWindow):
 		self.connectionDialog.exec_()
 
 	def fileSelect(self):
-		fileDialog = QFileDialog(self)
-		fileDialog.setLabelText(QFileDialog.Accept, 'Upload')
-		fileDialog.setWindowTitle('Choose a File to Upload')
+		fileDialog = QFileDialog( self )
+		fileDialog.setLabelText( QFileDialog.Accept, 'Upload' )
+		fileDialog.setWindowTitle( 'Choose a File to Upload' )
 		fileDialog.exec_()
 		filename = fileDialog.selectedFiles()[0]
-		if not filename == "" and filename:
-			blah = 0
-			#File upload stuff here
+		if filename != "" and filename:
+			self.peer.addlocalfile( filename )
+		self.updateFileList()
 
 	def onTimer( self ):
 		#Refresh every 3 seconds, using after from Tkinter
@@ -72,13 +69,17 @@ class MainWindow(QMainWindow):
 			
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
-		'''if self.fileList.size() > 0:
-			self.fileList.delete(0, self.fileList.size() - 1)
+		if self.ui.fileList.rowCount() > 0:
+			self.ui.fileList.clear()
 		for f in self.peer.files:
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
-			self.fileList.insert( END, "%s:%s" % (f,p) )'''
+			row = self.ui.fileList.rowCount()
+			hostItem = QTableWidgetItem(p)
+			fileItem = QTableWidgetItem(f)
+			self.ui.fileList.setItem(row, 0, hostItem)
+			self.ui.fileList.setItem(row, 1, fileItem)
 		
 	def onAdd(self):
 		#Gets filename from Add field and adds it as a local file using self.peer.addlocalfile( filename )
