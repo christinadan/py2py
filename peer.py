@@ -345,6 +345,7 @@ class Peer:
 		peerconn.senddata( 'PING', '' )
 		isconnected = True
 	    except:
+		self.__debug( 'Adding to delete %s' % pid )
 		todelete.append( pid )
 	    if isconnected:
 		peerconn.close()
@@ -352,7 +353,9 @@ class Peer:
 	self.peerlock.acquire()
 	try:
 	    for pid in todelete: 
-		if pid in self.peers: del self.peers[pid]
+		if pid in self.peers: 
+			del self.peers[pid]
+			self.__debug( 'Deleting %s' % pid )
 	finally:
 	    self.peerlock.release()
     # end checklivepeers method
