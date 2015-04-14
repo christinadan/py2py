@@ -20,6 +20,7 @@ class MainWindow( QMainWindow ):
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( 0, QHeaderView.Interactive )
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
 		self.ui.actionRefresh.triggered.connect( self.onRefresh )
+		self.ui.actionFetch.triggered.connect( self.onFetch )
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
@@ -66,10 +67,20 @@ class MainWindow( QMainWindow ):
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
+		if len( self.ui.peerList.selectedItems() ) > 0:
+			selectedItem = self.ui.peerList.selectedItems()[0].text()
+			print selectedItem
+		else:
+			selectedItem = ""
+
 		if self.ui.peerList.count() > 0:
 			self.ui.peerList.clear()
+
 		for p in self.peer.getpeerids():
-			self.ui.peerList.insertItem( self.ui.peerList.currentRow(), p )
+			row = self.ui.peerList.currentRow()+1
+			self.ui.peerList.insertItem( row, p )
+			if p.lstrip().rstrip() == selectedItem.lstrip().rstrip():
+				self.ui.peerList.item( row ).setSelected( True )
 			
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
@@ -110,17 +121,21 @@ class MainWindow( QMainWindow ):
 	
 	def onFetch(self):
 		#Get currently selected file from GUI and retrieve said file from network
-		'''sels = self.fileList.curselection()
-		if len(sels)==1:
-			sel = self.fileList.get(sels[0]).split(':')
-			if len(sel) > 2:  # fname:host:port
-				fname,host,port = sel
-				resp = self.peer.connectandsend( host, port, FILEGET, fname )
-				if len(resp) and resp[0][0] == REPLY:
-					fd = file( fname, 'wb' )
+		if len( self.ui.fileList.selectedItems() ) > 0:
+			selectedRow = self.ui.fileList.selectedItems()[0].row()
+		else:
+			selectedRow = -1
+
+		if selectedRow > -1:
+			hostItem = self.ui.fileList.item( selectedRow, 0 ).text()
+			fileItem = self.ui.fileList.item( selectedRow, 1 ).text()
+			if hostItem != '(local)':
+				host,port = hostItem.split(':')
+				resp = self.peer.connectandsend( host, int(port), FILEGET, fileItem )
+				if len( resp ) and resp[0][0] == REPLY:
+					fd = file( fileItem, 'wb')
 					fd.write( resp[0][1] )
 					fd.close()
-					self.peer.files[fname] = None  # because it's local now'''
 	
 	def onRemove(self):
 		#Get currently selected peer from GUI and remove said peer, sending PEERQUIT msg
