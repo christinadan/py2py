@@ -29,13 +29,14 @@ class MainWindow( QMainWindow ):
 		#check IP; if good IP, connect; else, use a default
 		self.peer.buildpeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
+		self.ui.portLabel.setText('Server Port: ' + self.connectionDialog.localPort)
 
 		t = threading.Thread( target = self.peer.mainloop, args = [] )
 		t.start()
 
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
 		#self.peer.startstabilizer( self.onRefresh, 3 )
-		#self.after( 3000, self.onTimer )
+		self.onTimer()
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -57,7 +58,7 @@ class MainWindow( QMainWindow ):
 			# Do things
 			self.onRefresh()
 		finally:
-			QTimer.singleShot(3000, onTimer)
+			QTimer.singleShot(3000, self.onTimer)
 		
 	def closeEvent(self, event):
 		self.peer.shutdown = True
