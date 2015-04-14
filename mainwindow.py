@@ -19,6 +19,7 @@ class MainWindow( QMainWindow ):
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( QHeaderView.Stretch )
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( 0, QHeaderView.Interactive )
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
+		self.ui.actionRefresh.triggered.connect( self.onRefresh )
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
