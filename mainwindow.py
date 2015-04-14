@@ -71,15 +71,22 @@ class MainWindow( QMainWindow ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
 		if self.ui.fileList.rowCount() > 0:
 			self.ui.fileList.clear()
+		#self.ui.fileList.clearContents()
 		for f in self.peer.files:
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
+
 			row = self.ui.fileList.rowCount()
 			hostItem = QTableWidgetItem(p)
 			fileItem = QTableWidgetItem(f)
 			self.ui.fileList.setItem(row, 0, hostItem)
 			self.ui.fileList.setItem(row, 1, fileItem)
+			'''
+			self.ui.fileList.insertRow(self.ui.fileList.rowCount())
+			self.ui.fileList.setCellWidget(self.ui.fileList.rowCount(), 0, p)
+			self.ui.fileList.setCellWidget(self.ui.fileList.rowCount(), 1, f)
+			'''
 		
 	def onAdd(self):
 		#Gets filename from Add field and adds it as a local file using self.peer.addlocalfile( filename )
