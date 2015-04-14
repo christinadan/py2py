@@ -35,7 +35,7 @@ class MainWindow( QMainWindow ):
 
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
 		#self.peer.startstabilizer( self.onRefresh, 3 )
-		#self.after( 3000, self.onTimer )
+		self.onTimer()
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -57,7 +57,7 @@ class MainWindow( QMainWindow ):
 			# Do things
 			self.onRefresh()
 		finally:
-			QTimer.singleShot(3000, onTimer)
+			QTimer.singleShot(3000, self.onTimer)
 		
 	def closeEvent(self, event):
 		self.peer.shutdown = True
