@@ -8,7 +8,7 @@ class ConnectionDialog(QDialog):
     def __init__(self):
         super(ConnectionDialog, self).__init__()
         global settings 
-        settings = QSettings()
+        settings = QSettings("FlamingKittens","py2py")
 		#Use previously used values or uses default values
     	self.localPort = settings.value("localPort", 5678)
     	self.peerHost = settings.value("peerHost", "10.0.0.9")
