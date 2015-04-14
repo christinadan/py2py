@@ -34,8 +34,8 @@ class MainWindow(QMainWindow):
 		t.start()
 
 		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
-		self.peer.startstabilizer( self.onRefresh, 3 )
-		self.after( 3000, self.onTimer )
+		#self.peer.startstabilizer( self.onRefresh, 3 )
+		#self.after( 3000, self.onTimer )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -63,8 +63,8 @@ class MainWindow(QMainWindow):
 		
 	def updatePeerList( self ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
-		if self.peerList.count() > 0:
-			self.peerList.clear()
+		if self.ui.peerList.count() > 0:
+			self.ui.peerList.clear()
 		for p in self.peer.getpeerids():
 			self.ui.peerList.insertItem( self.ui.peerList.currentRow(), p )
 			
