@@ -285,8 +285,14 @@
            </item>
            <item>
             <widget class="QTableWidget" name="fileList">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
              <property name="selectionMode">
               <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
              </property>
              <property name="cornerButtonEnabled">
               <bool>false</bool>
@@ -295,6 +301,9 @@
               <bool>false</bool>
              </attribute>
              <attribute name="horizontalHeaderStretchLastSection">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
               <bool>false</bool>
              </attribute>
              <column>

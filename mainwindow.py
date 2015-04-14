@@ -73,23 +73,32 @@ class MainWindow( QMainWindow ):
 			
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
+		if len( self.ui.fileList.selectedItems() ) > 0:
+			selectedRow = self.ui.fileList.selectedItems()[0].row()
+		else:
+			selectedRow = -1
+
 		if self.ui.fileList.rowCount() > 0:
-			self.ui.fileList.clear()
+			self.ui.fileList.clearContents()
 			self.ui.fileList.setRowCount(0)
 
+			
 		row = 0
 		for f in self.peer.files:
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
 
-			hostItem = QTableWidgetItem(p)
-			fileItem = QTableWidgetItem(f)
+			hostItem = QTableWidgetItem( p )
+			fileItem = QTableWidgetItem( f )
 
-			self.ui.fileList.insertRow(row)
-			self.ui.fileList.setItem(row, 0, hostItem)
-			self.ui.fileList.setItem(row, 1, fileItem)
+			self.ui.fileList.insertRow( row )
+			self.ui.fileList.setItem( row, 0, hostItem )
+			self.ui.fileList.setItem( row, 1, fileItem )
 			row = row + 1
+
+		if selectedRow > -1:
+			self.ui.fileList.selectRow( selectedRow )
 		
 	def onSearch(self):
 		#Gets filename from Search field and queries the network using self.peer.sendtopeer
