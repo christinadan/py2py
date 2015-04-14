@@ -51,10 +51,12 @@ class MainWindow( QMainWindow ):
 		self.updateFileList()
 
 	def onTimer( self ):
-		#Refresh every 3 seconds, using after from Tkinter
-		'''self.onRefresh()
-		self.after( 3000, self.onTimer )
-		#self.after_idle( self.onTimer )'''
+		#Refresh every 3 seconds
+		try:
+			# Do things
+			self.onRefresh()
+		finally:
+			QTimer.singleShot(3000, onTimer)
 		
 	def closeEvent(self, event):
 		self.peer.shutdown = True
