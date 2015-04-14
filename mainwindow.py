@@ -21,6 +21,10 @@ class MainWindow( QMainWindow ):
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
 		self.ui.actionRefresh.triggered.connect( self.onRefresh )
 		self.ui.actionFetch.triggered.connect( self.onFetch )
+		self.ui.searchButton.clicked.connect( self.onSearch )
+		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
+		self.ui.showAllButton.clicked.connect( self.onShowAll )
+		self.showAll = True
 
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
@@ -110,14 +114,32 @@ class MainWindow( QMainWindow ):
 
 		if selectedRow > -1:
 			self.ui.fileList.selectRow( selectedRow )
+
+		self.search()
+
+	def search(self):
+		#Gets filename from Search field and queries the network using self.peer.sendtopeer
+		if not self.showAll:
+			for row in range( 0, self.ui.fileList.rowCount() ):
+				if self.searchTerm != "":
+					item = self.ui.fileList.item( row, 1 )
+					if self.searchTerm in item.text():
+						self.ui.fileList.setRowHidden( row, False )
+					else:
+						self.ui.fileList.setRowHidden( row, True )
+				else:
+					self.ui.fileList.setRowHidden( row, True )
 		
 	def onSearch(self):
-		#Gets filename from Search field and queries the network using self.peer.sendtopeer
-		'''key = self.searchEntry.get()
-		self.searchEntry.delete( 0, len(key) )
+		self.searchTerm = self.ui.searchLineEdit.text()
+		self.showAll = False
+		search()
 
-		for p in self.peer.getpeerids():
-			self.peer.sendtopeer( p, QUERY, "%s %s 4" % ( self.peer.myid, key ) )'''
+	def onShowAll(self):
+		for row in range( 0, self.ui.fileList.rowCount() ):
+			self.ui.fileList.setRowHidden( row, False )
+
+		self.showAll = True
 	
 	def onFetch(self):
 		#Get currently selected file from GUI and retrieve said file from network
