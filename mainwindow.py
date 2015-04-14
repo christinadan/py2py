@@ -71,7 +71,8 @@ class MainWindow( QMainWindow ):
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
 		if self.ui.fileList.rowCount() > 0:
-			self.ui.fileList.clearContents()
+			self.ui.fileList.clear()
+			self.ui.fileList.setRowCount(0)
 
 		row = 0
 		for f in self.peer.files:
@@ -81,9 +82,8 @@ class MainWindow( QMainWindow ):
 
 			hostItem = QTableWidgetItem(p)
 			fileItem = QTableWidgetItem(f)
-			if row == 0:
-				self.ui.fileList.insertRow(row)
 
+			self.ui.fileList.insertRow(row)
 			self.ui.fileList.setItem(row, 0, hostItem)
 			self.ui.fileList.setItem(row, 1, fileItem)
 			row = row + 1
