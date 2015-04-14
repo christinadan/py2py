@@ -43,7 +43,7 @@ class Peer:
 	if myid: self.myid = myid
 	else: self.myid = '%s:%d' % (self.serverhost, self.serverport)
 
-	self.peerlock = threading.Lock()  # ensure proper access to
+	self.peerlock = threading.RLock()  # ensure proper access to
 	                            # peers list (maybe better to use
 	                            # threading.RLock (reentrant))
 	self.peers = {}        # peerid ==> (host, port) mapping
