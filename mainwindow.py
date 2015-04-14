@@ -29,6 +29,7 @@ class MainWindow( QMainWindow ):
 		#check IP; if good IP, connect; else, use a default
 		self.peer.buildpeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
+		self.ui.portLabel.setText('Server Port: ' + self.connectionDialog.localPort)
 
 		t = threading.Thread( target = self.peer.mainloop, args = [] )
 		t.start()
@@ -73,7 +74,8 @@ class MainWindow( QMainWindow ):
 	def updateFileList( self ):
 		#If GUI file display has data, delete it then repopulate from self.peer.files
 		if self.ui.fileList.rowCount() > 0:
-			self.ui.fileList.clearContents()
+			self.ui.fileList.clear()
+			self.ui.fileList.setRowCount(0)
 
 		row = 0
 		for f in self.peer.files:
@@ -83,9 +85,8 @@ class MainWindow( QMainWindow ):
 
 			hostItem = QTableWidgetItem(p)
 			fileItem = QTableWidgetItem(f)
-			if row == 0:
-				self.ui.fileList.insertRow(row)
 
+			self.ui.fileList.insertRow(row)
 			self.ui.fileList.setItem(row, 0, hostItem)
 			self.ui.fileList.setItem(row, 1, fileItem)
 			row = row + 1
