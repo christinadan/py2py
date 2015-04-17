@@ -1,5 +1,6 @@
 import sys
 import threading
+import os
 
 from PyQt5.Qt import *
 from Generated.ui_mainwindow import Ui_MainWindow
@@ -41,9 +42,11 @@ class MainWindow( QMainWindow ):
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
 		self.ui.actionRefresh.triggered.connect( self.onRefresh )
 		self.ui.actionDownload.triggered.connect( self.onDownload )
+		self.ui.fetchButton.clicked.connect( self.onDownload )
 		self.ui.searchButton.clicked.connect( self.onSearch )
 		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
 		self.ui.rebuildButton.clicked.connect( self.onRebuild )
+		self.ui.clearAllButton.clicked.connect( self.onClearAll )
 		
 	def connectionPopup(self):
 		self.connectionDialog = ConnectionDialog()
@@ -107,8 +110,11 @@ class MainWindow( QMainWindow ):
 			if not p:
 				p = '(local)'
 
+			f.rstrip('\/')
+			head, tail = os.path.split( f )
 			hostItem = QTableWidgetItem( p )
-			fileItem = QTableWidgetItem( f )
+			fileItem = QTableWidgetItem( tail )
+			fileItem.setData( Qt.UserRole, f )
 
 			self.ui.fileList.insertRow( row )
 			self.ui.fileList.setItem( row, 0, hostItem )
@@ -117,6 +123,20 @@ class MainWindow( QMainWindow ):
 
 		if selectedRow > -1:
 			self.ui.fileList.selectRow( selectedRow )
+
+	def onClearAll(self):
+		#Clears the filelist
+		self.ui.fileList.clearContents()
+		self.ui.fileList.setRowCount(0)
+
+		files = {}
+		for f in self.peer.files:
+			p = self.peer.files[f]
+			if p == None:
+				files[f] = p
+		self.peer.files = files
+
+		self.updateFileList()
 
 	def onSearch(self):
 		#Gets filename from Search field and queries the network using self.peer.sendtopeer
@@ -135,13 +155,20 @@ class MainWindow( QMainWindow ):
 		if selectedRow > -1:
 			hostItem = self.ui.fileList.item( selectedRow, 0 ).text()
 			fileItem = self.ui.fileList.item( selectedRow, 1 ).text()
+			fileItemPath = self.ui.fileList.item( selectedRow, 1 ).data( Qt.UserRole )
 			if hostItem != '(local)':
 				host,port = hostItem.split(':')
-				resp = self.peer.connectandsend( host, int(port), FILEGET, str( fileItem ) )
+				resp = self.peer.connectandsend( host, int(port), FILEGET, str( fileItemPath ) )
 				if len( resp ) and resp[0][0] == REPLY:
+					if not os.path.exists('Downloads'):
+						os.makedirs('Downloads')
+					curDir = os.getcwd()
+					os.chdir('Downloads')
 					fd = file( fileItem, 'wb')
 					fd.write( resp[0][1] )
 					fd.close()
+					self.peer.files[str( fileItemPath )] = None
+					os.chdir( curDir )
 	
 	def onRefresh(self):
 		#Update peer and file list
