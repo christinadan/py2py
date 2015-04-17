@@ -280,11 +280,10 @@ class FilerPeer(Peer):
 	#NOT YET WORKING
 	self.peerlock.acquire()
 	try:
-	    self.__debug('Listing filess %d' % self.numberoffiles())
+	    self.__debug('Listing files %d' % self.numberoffiles())
 	    peerconn.senddata(REPLY, '%d' % self.numberoffiles())
 	    for fname in self.files.keys():
-		host,port = self.getpeer(pid)
-		peerconn.senddata(REPLY, '%s %s %d' % (pid, host, port))
+		peerconn.senddata(REPLY, '%s' % (fname))
 	finally:
 	    self.peerlock.release()
 
