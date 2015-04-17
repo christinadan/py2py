@@ -13,6 +13,7 @@ QUERY = "QUER"
 QRESPONSE = "RESP"
 FILEGET = "FGET"
 PEERQUIT = "QUIT"
+LISTFILES = "FILE"
 
 REPLY = "REPL"
 ERROR = "ERRO"
@@ -50,7 +51,8 @@ class FilerPeer(Peer):
 		    QUERY: self.__handle_query,
 		    QRESPONSE: self.__handle_qresponse,
 		    FILEGET: self.__handle_fileget,
-		    PEERQUIT: self.__handle_quit
+		    PEERQUIT: self.__handle_quit,
+			LISTFILES : self.__handle_listfiles
 		   }
 	for mt in handlers:
 	    self.addhandler(mt, handlers[mt])
@@ -270,6 +272,21 @@ class FilerPeer(Peer):
 	finally:
 	    self.peerlock.release()
 
+		
+	#--------------------------------------------------------------------------
+    def __handle_listfiles(self, peerconn, data):
+    #--------------------------------------------------------------------------
+	""" Handles the LISTFILES message type. Message data is not used. """
+	#NOT YET WORKING
+	self.peerlock.acquire()
+	try:
+	    self.__debug('Listing filess %d' % self.numberoffiles())
+	    peerconn.senddata(REPLY, '%d' % self.numberoffiles())
+	    for fname in self.files.keys():
+		host,port = self.getpeer(pid)
+		peerconn.senddata(REPLY, '%s %s %d' % (pid, host, port))
+	finally:
+	    self.peerlock.release()
 
 
     # precondition: may be a good idea to hold the lock before going
@@ -328,3 +345,9 @@ class FilerPeer(Peer):
 	""" Registers a locally-stored file with the peer. """
 	self.files[filename] = None
 	self.__debug("Added local file %s" % filename)
+	
+	#--------------------------------------------------------------------------
+    def numberoffiles( self ):
+    #--------------------------------------------------------------------------
+	""" Return the number of known peer's. """
+	return len(self.files)
