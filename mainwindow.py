@@ -18,7 +18,6 @@ class MainWindow( QMainWindow ):
 		# Make some local modifications to UI
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( QHeaderView.Stretch )
 		self.ui.fileList.horizontalHeader().setSectionResizeMode( 0, QHeaderView.Interactive )
-		self.showAll = True
 		self.connectSignals()
 
 		self.connectionPopup()
@@ -44,7 +43,6 @@ class MainWindow( QMainWindow ):
 		self.ui.actionDownload.triggered.connect( self.onDownload )
 		self.ui.searchButton.clicked.connect( self.onSearch )
 		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
-		self.ui.showAllButton.clicked.connect( self.onShowAll )
 		self.ui.rebuildButton.clicked.connect( self.onRebuild )
 		
 	def connectionPopup(self):
@@ -58,7 +56,7 @@ class MainWindow( QMainWindow ):
 		fileDialog.exec_()
 		filename = fileDialog.selectedFiles()[0]
 		if filename != "" and filename:
-			self.peer.addlocalfile( filename )
+			self.peer.addlocalfile( str( filename ) )
 		self.updateFileList()
 
 	def onTimer( self ):
@@ -104,6 +102,7 @@ class MainWindow( QMainWindow ):
 			
 		row = 0
 		for f in self.peer.files:
+			print f
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
@@ -119,31 +118,12 @@ class MainWindow( QMainWindow ):
 		if selectedRow > -1:
 			self.ui.fileList.selectRow( selectedRow )
 
-		self.search()
-
-	def search(self):
-		#Gets filename from Search field and queries the network using self.peer.sendtopeer
-		if not self.showAll:
-			for row in range( 0, self.ui.fileList.rowCount() ):
-				if self.searchTerm != "":
-					item = self.ui.fileList.item( row, 1 )
-					if self.searchTerm in item.text():
-						self.ui.fileList.setRowHidden( row, False )
-					else:
-						self.ui.fileList.setRowHidden( row, True )
-				else:
-					self.ui.fileList.setRowHidden( row, True )
-		
 	def onSearch(self):
+		#Gets filename from Search field and queries the network using self.peer.sendtopeer
 		self.searchTerm = self.ui.searchLineEdit.text()
-		self.showAll = False
-		search()
 
-	def onShowAll(self):
-		for row in range( 0, self.ui.fileList.rowCount() ):
-			self.ui.fileList.setRowHidden( row, False )
-
-		self.showAll = True
+		for p in self.peer.getpeerids():
+			self.peer.sendtopeer( p, QUERY, "%s %s 4" % ( self.peer.myid, str( self.searchTerm ) ) )
 	
 	def onDownload(self):
 		#Get currently selected file from GUI and retrieve said file from network
@@ -157,7 +137,7 @@ class MainWindow( QMainWindow ):
 			fileItem = self.ui.fileList.item( selectedRow, 1 ).text()
 			if hostItem != '(local)':
 				host,port = hostItem.split(':')
-				resp = self.peer.connectandsend( host, int(port), FILEGET, fileItem )
+				resp = self.peer.connectandsend( host, int(port), FILEGET, str( fileItem ) )
 				if len( resp ) and resp[0][0] == REPLY:
 					fd = file( fileItem, 'wb')
 					fd.write( resp[0][1] )

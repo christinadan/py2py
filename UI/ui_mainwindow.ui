@@ -89,7 +89,11 @@
         <item>
          <layout class="QHBoxLayout" name="rebuildHorizontalLayout">
           <item>
-           <widget class="QLineEdit" name="rebuildLineEdit"/>
+           <widget class="QLineEdit" name="rebuildLineEdit">
+            <property name="placeholderText">
+             <string>Peer-IP:Port</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="rebuildButton">
@@ -247,26 +251,6 @@
                   <width>12</width>
                   <height>12</height>
                  </size>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>26</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="showAllButton">
-                <property name="text">
-                 <string>Show All</string>
                 </property>
                </widget>
               </item>
