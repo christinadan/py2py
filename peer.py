@@ -201,7 +201,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def addpeerat( self, loc, peerid, host, port ):
+    def addpeerat( self, loc, peerid, host, port ):  ###Not Used###
     #--------------------------------------------------------------------------
 	""" Inserts a peer's information at a specific position in the 
 	list of peers. The functions addpeerat, getpeerat, and removepeerat
@@ -214,7 +214,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def getpeerat( self, loc ):
+    def getpeerat( self, loc ): ###Not Used###
     #--------------------------------------------------------------------------
 	if loc not in self.peers:
 	    return None
@@ -223,7 +223,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def removepeerat( self, loc ):
+    def removepeerat( self, loc ):  ###Not Used###
     #--------------------------------------------------------------------------
 	removepeer( self, loc ) 
 
