@@ -428,7 +428,7 @@ class PeerConnection:
     def __makemsg( self, msgtype, msgdata ):
     #--------------------------------------------------------------------------
 	msglen = len(msgdata)
-	msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, msgdata )
+	msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, str( msgdata ) )
 	return msg
 
 

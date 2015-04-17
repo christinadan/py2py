@@ -205,7 +205,7 @@ class FilerPeer(Peer):
 
 	"""
 	try:
-	    fname, fpeerid = data.split()
+	    fname, fpeerid = data.rsplit( " ", 1 )
 	    if fname in self.files:
 		self.__debug('Can\'t add duplicate file %s %s' % 
 			      (fname, fpeerid))
