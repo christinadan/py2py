@@ -138,6 +138,14 @@ class MainWindow( QMainWindow ):
 
 		self.updateFileList()
 
+	def removeFile(self, fileToRemove):
+		files = {}
+		for f in self.peer.files:
+			p = self.peer.files[f]
+			if f != fileToRemove:
+				files[f] = p
+		self.peer.files = files
+
 	def onSearch(self):
 		#Gets filename from Search field and queries the network using self.peer.sendtopeer
 		self.searchTerm = self.ui.searchLineEdit.text()
@@ -167,7 +175,10 @@ class MainWindow( QMainWindow ):
 					fd = file( fileItem, 'wb')
 					fd.write( resp[0][1] )
 					fd.close()
-					self.peer.files[str( fileItemPath )] = None
+					self.removeFile( fileItemPath )
+					if os.path.isfile( fileItem ):
+						self.peer.addlocalfile( os.path.abspath( fileItem ) )
+						self.updateFileList()
 					os.chdir( curDir )
 	
 	def onRefresh(self):
@@ -190,5 +201,4 @@ class MainWindow( QMainWindow ):
 				#         for peerid in self.peer.getpeerids():
 				#            host,port = self.peer.getpeer( peerid )
 		self.ui.rebuildLineEdit.clear()
-				
 				
