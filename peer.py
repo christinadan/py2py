@@ -40,37 +40,39 @@ class Peer:
 			debug( msg )
 
 	def __handlePeer( self, clientsock ):
-	
-		self.__debug( 'New child ' + str(threading.currentThread().getName()) )
-		self.__debug( 'Connected ' + str(clientsock.getpeername()) )
+		#Used to handle incoming connections from peers not yet in our list
+		self.__debug( 'New child ' + str(threading.currentThread().getName()) )	#Log that we're in a child thread
+		self.__debug( 'Connected ' + str(clientsock.getpeername()) )	#Log who is connecting to us, getpeername is built in socket function
 
-		host, port = clientsock.getpeername()
+		host, port = clientsock.getpeername()	#Get ip and port of connecting peer
 		peerconn = PeerConnection( None, host, port, clientsock, debug=False )	#Create a new connection with peer
 		
 		try:
-			msgtype, msgdata = peerconn.recvData()
-			if msgtype: msgtype = msgtype.upper()
+			msgtype, msgdata = peerconn.recvData()	#Store received data from peer
+			if msgtype: msgtype = msgtype.upper()	#Convert to upper (handlers are defined in all caps!)
 			if msgtype not in self.handlers:	#Check if message type is in handlers
-				self.__debug( 'Not handled: %s: %s' % (msgtype, msgdata) )
+				self.__debug( 'Not handled: %s: %s' % (msgtype, msgdata) )	#Log if they send a bogus request
 			else:
-				self.__debug( 'Handling peer msg: %s: %s' % (msgtype, msgdata) )
-				self.handlers[ msgtype ]( peerconn, msgdata )
+				self.__debug( 'Handling peer msg: %s: %s' % (msgtype, msgdata) )	#Log that they sent a legit request
+				self.handlers[ msgtype ]( peerconn, msgdata )	#Call appropriate handler function
 		except KeyboardInterrupt:
 			raise
 		except:
 			if self.debug:
 				traceback.print_exc()
 		
-		self.__debug( 'Disconnecting ' + str(clientsock.getpeername()) )
-		peerconn.close()
+		self.__debug( 'Disconnecting ' + str(clientsock.getpeername()) )	#Log that they disconnected
+		peerconn.close()	#Close the socket connection
 		#End handlePeer
 
 	def __runStabilizer( self, stabilizer, delay ):
+		#Stabilizer function that calls "stabilizer" (a passed in function) every "delay" # of seconds until self.shutdown is true
 		while not self.shutdown:
 			stabilizer()
 			time.sleep( delay )
 
-	def startStabilizer( self, stabilizer, delay ):	#Create a stabilizer background function in a separate thread
+	def startStabilizer( self, stabilizer, delay ):
+		#Create a stabilizer background function in a separate thread
 		t = threading.Thread( target = self.__runStabilizer, args = [ stabilizer, delay ] )
 		t.start()
 
@@ -83,7 +85,7 @@ class Peer:
 		self.router = router
 
 	def addPeer( self, peerid, host, port ):
-		#Adds peer with peerId defined as ip:port
+		#Adds peer with peerId defined as ip:port if it's not already in peer list
 		if peerid not in self.peers:
 			self.peers[ peerid ] = (host, int(port))
 			return True
@@ -206,84 +208,3 @@ class Peer:
 		#end mainLoop
 
 #end Peer class
-
-class PeerConnection:
-	
-	def __init__( self, peerid, host, port, sock=None, debug=False ):
-		# any exceptions thrown upwards
-		self.id = peerid
-		self.debug = debug
-
-		if not sock:
-			self.s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-			self.s.settimeout(1)
-			self.s.connect( ( host, int(port) ) )
-			self.s.settimeout(None)
-		else:
-			self.s = sock
-
-		self.sd = self.s.makefile( 'rw', 0 )
-	
-	def __makeMsg( self, msgtype, msgdata ):
-		#Constructs message into packet to be sent
-		msglen = len(msgdata)
-		msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, str( msgdata ) )
-		return msg
-
-	def __debug( self, msg ):
-		#Override debug class
-		if self.debug:
-			debug( msg )
-
-	def sendData( self, msgtype, msgdata ):
-		#Send message through peer connection
-		try:
-			msg = self.__makeMsg( msgtype, msgdata )
-			self.sd.write( msg )
-			self.sd.flush()
-		except KeyboardInterrupt:
-			raise
-		except:
-			if self.debug:
-				traceback.print_exc()
-			return False
-		return True
-		
-	def recvData( self ):
-		#Receive message through peer connection
-		try:
-			msgtype = self.sd.read( 4 )
-			if not msgtype: return (None, None)
-			
-			lenstr = self.sd.read( 4 )
-			msglen = int(struct.unpack( "!L", lenstr )[0])
-			msg = ""
-
-			while len(msg) != msglen:
-				data = self.sd.read( min(2048, msglen - len(msg)) )
-				if not len(data):
-					break
-				msg += data
-
-			if len(msg) != msglen:
-				return (None, None)
-
-		except KeyboardInterrupt:
-			raise
-		except:
-			if self.debug:
-				traceback.print_exc()
-			return (None, None)
-
-		return ( msgtype, msg )
-		#End recvData
-
-	def close( self ):
-		#Close peer connection
-		self.s.close()
-		self.s = None
-		self.sd = None
-		
-	def __str__( self ):
-		return "|%s|" % peerid
-		
