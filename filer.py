@@ -43,7 +43,7 @@ class FilerPeer(Peer):
 	
 	self.files = {}  # available files: name --> peerid mapping
 
-	self.addrouter(self.__router)
+	self.addRouter(self.__router)
 
 	handlers = {LISTPEERS : self.__handle_listpeers,
 		    INSERTPEER : self.__handle_insertpeer,
@@ -55,7 +55,7 @@ class FilerPeer(Peer):
 			LISTFILES : self.__handle_listfiles
 		   }
 	for mt in handlers:
-	    self.addhandler(mt, handlers[mt])
+	    self.addHandler(mt, handlers[mt])
 
     # end FilerPeer constructor
 
@@ -72,7 +72,7 @@ class FilerPeer(Peer):
     #--------------------------------------------------------------------------
     def __router(self, peerid):
     #--------------------------------------------------------------------------
-	if peerid not in self.getpeerids():
+	if peerid not in self.getPeerIds():
 	    return (None, None, None)
 	else:
 	    rt = [peerid]
@@ -97,16 +97,16 @@ class FilerPeer(Peer):
 		peerid,host,port = data.split()
 
 		# peerid = '%s:%s' % (host,port)
-		if peerid not in self.getpeerids() and peerid != self.myid:
-		    self.addpeer(peerid, host, port)
+		if peerid not in self.getPeerIds() and peerid != self.myid:
+		    self.addPeer(peerid, host, port)
 		    self.__debug('added peer: %s' % peerid)
-		    peerconn.senddata(REPLY, 'Join: peer added: %s' % peerid)
+		    peerconn.sendData(REPLY, 'Join: peer added: %s' % peerid)
 		else:
-		    peerconn.senddata(ERROR, 'Join: peer already inserted %s'
+		    peerconn.sendData(ERROR, 'Join: peer already inserted %s'
 				       % peerid)
 	    except:
 		self.__debug('invalid insert %s: %s' % (str(peerconn), data))
-		peerconn.senddata(ERROR, 'Join: incorrect arguments')
+		peerconn.sendData(ERROR, 'Join: incorrect arguments')
 	finally:
 	    self.peerlock.release()
 
@@ -120,11 +120,11 @@ class FilerPeer(Peer):
 	""" Handles the LISTPEERS message type. Message data is not used. """
 	self.peerlock.acquire()
 	try:
-	    self.__debug('Listing peers %d' % self.numberofpeers())
-	    peerconn.senddata(REPLY, '%d' % self.numberofpeers())
-	    for pid in self.getpeerids():
-		host,port = self.getpeer(pid)
-		peerconn.senddata(REPLY, '%s %s %d' % (pid, host, port))
+	    self.__debug('Listing peers %d' % self.numberOfPeers())
+	    peerconn.sendData(REPLY, '%d' % self.numberOfPeers())
+	    for pid in self.getPeerIds():
+		host,port = self.getPeer(pid)
+		peerconn.sendData(REPLY, '%s %s %d' % (pid, host, port))
 	finally:
 	    self.peerlock.release()
 
@@ -134,7 +134,7 @@ class FilerPeer(Peer):
     def __handle_peername(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the NAME message type. Message data is not used. """
-	peerconn.senddata(REPLY, self.myid)
+	peerconn.sendData(REPLY, self.myid)
 
 
 
@@ -152,10 +152,10 @@ class FilerPeer(Peer):
 	# self.peerlock.acquire()
 	try:
 	    peerid, key, ttl = data.split()
-	    peerconn.senddata(REPLY, 'Query ACK: %s' % key)
+	    peerconn.sendData(REPLY, 'Query ACK: %s' % key)
 	except:
 	    self.__debug('invalid query %s: %s' % (str(peerconn), data))
-	    peerconn.senddata(ERROR, 'Query: incorrect arguments')
+	    peerconn.sendData(ERROR, 'Query: incorrect arguments')
 	# self.peerlock.release()
 
 	t = threading.Thread(target=self.__processquery, 
@@ -180,9 +180,9 @@ class FilerPeer(Peer):
 		if not fpeerid:   # local files mapped to None
 		    fpeerid = self.myid
 		host,port = peerid.split(':')
-		# can't use sendtopeer here because peerid is not necessarily
+		# can't use sendToPeer here because peerid is not necessarily
 		# an immediate neighbor
-		self.connectandsend(host, int(port), QRESPONSE, 
+		self.connectAndSend(host, int(port), QRESPONSE, 
 				     '%s %s' % (fname, fpeerid),
 				     pid=peerid)
 		return
@@ -190,8 +190,8 @@ class FilerPeer(Peer):
 	# propagate query to neighbors
 	if ttl > 0:
 	    msgdata = '%s %s %d' % (peerid, key, ttl - 1)
-	    for nextpid in self.getpeerids():
-		self.sendtopeer(nextpid, QUERY, msgdata)
+	    for nextpid in self.getPeerIds():
+		self.sendToPeer(nextpid, QUERY, msgdata)
 
 
 
@@ -228,7 +228,7 @@ class FilerPeer(Peer):
 	fname = data
 	if fname not in self.files:
 	    self.__debug('File not found %s' % fname)
-	    peerconn.senddata(ERROR, 'File not found')
+	    peerconn.sendData(ERROR, 'File not found')
 	    return
 	try:
 	    fd = file(fname, 'rb')
@@ -241,10 +241,10 @@ class FilerPeer(Peer):
 	    fd.close()
 	except:
 	    self.__debug('Error reading file %s' % fname)
-	    peerconn.senddata(ERROR, 'Error reading file')
+	    peerconn.sendData(ERROR, 'Error reading file')
 	    return
 	
-	peerconn.senddata(REPLY, filedata)
+	peerconn.sendData(REPLY, filedata)
 
 
 
@@ -260,15 +260,15 @@ class FilerPeer(Peer):
 	self.peerlock.acquire()
 	try:
 	    peerid = data.lstrip().rstrip()
-	    if peerid in self.getpeerids():
+	    if peerid in self.getPeerIds():
 		msg = 'Quit: peer removed: %s' % peerid 
 		self.__debug(msg)
-		peerconn.senddata(REPLY, msg)
-		self.removepeer(peerid)
+		peerconn.sendData(REPLY, msg)
+		self.removePeer(peerid)
 	    else:
 		msg = 'Quit: peer not found: %s' % peerid 
 		self.__debug(msg)
-		peerconn.senddata(ERROR, msg)
+		peerconn.sendData(ERROR, msg)
 	finally:
 	    self.peerlock.release()
 
@@ -281,9 +281,9 @@ class FilerPeer(Peer):
 	self.peerlock.acquire()
 	try:
 	    self.__debug('Listing files %d' % self.numberoffiles())
-	    peerconn.senddata(REPLY, '%d' % self.numberoffiles())
+	    peerconn.sendData(REPLY, '%d' % self.numberoffiles())
 	    for fname in self.files.keys():
-		peerconn.senddata(REPLY, '%s' % (fname))
+		peerconn.sendData(REPLY, '%s' % (fname))
 	finally:
 	    self.peerlock.release()
 
@@ -308,21 +308,21 @@ class FilerPeer(Peer):
 	self.__debug("Building peers from (%s,%s)" % (host,port))
 
 	try:
-	    _, peerid = self.connectandsend(host, port, PEERNAME, '')[0]
+	    _, peerid = self.connectAndSend(host, port, PEERNAME, '')[0]
 
 	    self.__debug("contacted " + peerid)
-	    resp = self.connectandsend(host, port, INSERTPEER, 
+	    resp = self.connectAndSend(host, port, INSERTPEER, 
 					'%s %s %d' % (self.myid, 
 						      self.serverhost, 
 						      self.serverport))[0]
 	    self.__debug(str(resp))
-	    if (resp[0] != REPLY) or (peerid in self.getpeerids()):
+	    if (resp[0] != REPLY) or (peerid in self.getPeerIds()):
 		return
 
-	    self.addpeer(peerid, host, port)
+	    self.addPeer(peerid, host, port)
 
 	    # do recursive depth first search to add more peers
-	    resp = self.connectandsend(host, port, LISTPEERS, '',
+	    resp = self.connectAndSend(host, port, LISTPEERS, '',
 					pid=peerid)
 	    if len(resp) > 1:
 		resp.reverse()
@@ -334,7 +334,7 @@ class FilerPeer(Peer):
 	except:
 	    if self.debug:
 		traceback.print_exc()
-	    self.removepeer(peerid)
+	    self.removePeer(peerid)
 
 
 

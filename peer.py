@@ -34,11 +34,11 @@ class Peer:
 	Internet host like Google.
 
 	"""
-	self.debug = 1
+	self.debug = 0
 
 	self.serverport = int(serverport)
 	if serverhost: self.serverhost = serverhost
-	else: self.__initserverhost()
+	else: self.__initServerHost()
 
 	if myid: self.myid = myid
 	else: self.myid = '%s:%d' % (self.serverhost, self.serverport)
@@ -55,7 +55,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def __initserverhost( self ):
+    def __initServerHost( self ):
     #--------------------------------------------------------------------------
 	""" Attempt to connect to an Internet host in order to determine the
 	local machine's IP address.
@@ -77,22 +77,22 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def __handlepeer( self, clientsock ):
+    def __handlePeer( self, clientsock ):
     #--------------------------------------------------------------------------
 	"""
-	handlepeer( new socket connection ) -> ()
+	handlePeer( new socket connection ) -> ()
 
 	Dispatches messages from the socket connection
 	"""
 
 	self.__debug( 'New child ' + str(threading.currentThread().getName()) )
-	self.__debug( 'Connected ' + str(clientsock.getpeername()) )
+	self.__debug( 'Connected ' + str(clientsock.getPeerName()) )
 
-	host, port = clientsock.getpeername()
+	host, port = clientsock.getPeerName()
 	peerconn = PeerConnection( None, host, port, clientsock, debug=False )
 	
 	try:
-	    msgtype, msgdata = peerconn.recvdata()
+	    msgtype, msgdata = peerconn.recvData()
 	    if msgtype: msgtype = msgtype.upper()
 	    if msgtype not in self.handlers:
 		self.__debug( 'Not handled: %s: %s' % (msgtype, msgdata) )
@@ -105,44 +105,36 @@ class Peer:
 	    if self.debug:
 		traceback.print_exc()
 	
-	self.__debug( 'Disconnecting ' + str(clientsock.getpeername()) )
+	self.__debug( 'Disconnecting ' + str(clientsock.getPeerName()) )
 	peerconn.close()
 
-    # end handlepeer method
+    # end handlePeer method
 
 
 
     #--------------------------------------------------------------------------
-    def __runstabilizer( self, stabilizer, delay ):
+    def __runStabilizer( self, stabilizer, delay ):
     #--------------------------------------------------------------------------
 	while not self.shutdown:
 	    stabilizer()
 	    time.sleep( delay )
 
-	    
 
     #--------------------------------------------------------------------------
-    def setmyid( self, myid ):
-    #--------------------------------------------------------------------------
-	self.myid = myid
-
-
-
-    #--------------------------------------------------------------------------
-    def startstabilizer( self, stabilizer, delay ):
+    def startStabilizer( self, stabilizer, delay ):
     #--------------------------------------------------------------------------
 	""" Registers and starts a stabilizer function with this peer. 
 	The function will be activated every <delay> seconds. 
 
 	"""
-	t = threading.Thread( target = self.__runstabilizer, 
+	t = threading.Thread( target = self.__runStabilizer, 
 			      args = [ stabilizer, delay ] )
 	t.start()
 
 	
 
     #--------------------------------------------------------------------------
-    def addhandler( self, msgtype, handler ):
+    def addHandler( self, msgtype, handler ):
     #--------------------------------------------------------------------------
 	""" Registers the handler for the given message type with this peer """
 	assert len(msgtype) == 4
@@ -151,7 +143,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def addrouter( self, router ):
+    def addRouter( self, router ):
     #--------------------------------------------------------------------------
 	""" Registers a routing function with this peer. The setup of routing
 	is as follows: This peer maintains a list of other known peers
@@ -169,7 +161,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def addpeer( self, peerid, host, port ):
+    def addPeer( self, peerid, host, port ):
     #--------------------------------------------------------------------------
 	""" Adds a peer name and host:port mapping to the known list of peers.
 	
@@ -183,7 +175,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def getpeer( self, peerid ):
+    def getPeer( self, peerid ):
     #--------------------------------------------------------------------------
 	""" Returns the (host, port) tuple for the given peer name """
 	assert peerid in self.peers    # maybe make this just a return NULL?
@@ -192,45 +184,15 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def removepeer( self, peerid ):
+    def removePeer( self, peerid ):
     #--------------------------------------------------------------------------
 	""" Removes peer information from the known list of peers. """
 	if peerid in self.peers:
 	    del self.peers[ peerid ]
 
 
-
     #--------------------------------------------------------------------------
-    def addpeerat( self, loc, peerid, host, port ):  ###Not Used###
-    #--------------------------------------------------------------------------
-	""" Inserts a peer's information at a specific position in the 
-	list of peers. The functions addpeerat, getpeerat, and removepeerat
-	should not be used concurrently with addpeer, getpeer, and/or 
-	removepeer. 
-
-	"""
-	self.peers[ loc ] = (peerid, host, int(port))
-
-
-
-    #--------------------------------------------------------------------------
-    def getpeerat( self, loc ): ###Not Used###
-    #--------------------------------------------------------------------------
-	if loc not in self.peers:
-	    return None
-	return self.peers[ loc ]
-
-
-
-    #--------------------------------------------------------------------------
-    def removepeerat( self, loc ):  ###Not Used###
-    #--------------------------------------------------------------------------
-	removepeer( self, loc ) 
-
-
-
-    #--------------------------------------------------------------------------
-    def getpeerids( self ):
+    def getPeerIds( self ):
     #--------------------------------------------------------------------------
 	""" Return a list of all known peer id's. """
 	return self.peers.keys()
@@ -238,7 +200,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def numberofpeers( self ):
+    def numberOfPeers( self ):
     #--------------------------------------------------------------------------
 	""" Return the number of known peer's. """
 	return len(self.peers)
@@ -246,7 +208,7 @@ class Peer:
 
     
     #--------------------------------------------------------------------------
-    def makeserversocket( self, port, backlog=5 ):
+    def makeServerSocket( self, port, backlog=5 ):
     #--------------------------------------------------------------------------
 	""" Constructs and prepares a server socket listening on the given 
 	port.
@@ -261,10 +223,10 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def sendtopeer( self, peerid, msgtype, msgdata, waitreply=True ):
+    def sendToPeer( self, peerid, msgtype, msgdata, waitreply=True ):
     #--------------------------------------------------------------------------
 	"""
-	sendtopeer( peer id, message type, message data, wait for a reply )
+	sendToPeer( peer id, message type, message data, wait for a reply )
 	 -> [ ( reply type, reply data ), ... ] 
 
 	Send a message to the identified peer. In order to decide how to
@@ -283,18 +245,18 @@ class Peer:
 	    self.__debug( 'Unable to route %s to %s' % (msgtype, peerid) )
 	    return None
 	#host,port = self.peers[nextpid]
-	return self.connectandsend( host, port, msgtype, msgdata,
+	return self.connectAndSend( host, port, msgtype, msgdata,
 				    pid=nextpid,
 				    waitreply=waitreply )
     
 
 
     #--------------------------------------------------------------------------
-    def connectandsend( self, host, port, msgtype, msgdata, 
+    def connectAndSend( self, host, port, msgtype, msgdata, 
 			pid=None, waitreply=True ):
     #--------------------------------------------------------------------------
 	"""
-	connectandsend( host, port, message type, message data, peer id,
+	connectAndSend( host, port, message type, message data, peer id,
 	wait for a reply ) -> [ ( reply type, reply data ), ... ]
 
 	Connects and sends a message to the specified host:port. The host's
@@ -304,16 +266,16 @@ class Peer:
 	msgreply = []
 	try:
 	    peerconn = PeerConnection( pid, host, port, debug=self.debug )
-	    peerconn.senddata( msgtype, msgdata )
+	    peerconn.sendData( msgtype, msgdata )
 	    self.__debug( 'Sent %s: %s' % (pid, msgtype) )
 	    
 	    if waitreply:
-		onereply = peerconn.recvdata()
+		onereply = peerconn.recvData()
 		while (onereply != (None,None)):
 		    msgreply.append( onereply )
 		    self.__debug( 'Got reply %s: %s' 
 				  % ( pid, str(msgreply) ) )
-		    onereply = peerconn.recvdata()
+		    onereply = peerconn.recvData()
 	    peerconn.close()
 	except KeyboardInterrupt:
 	    raise
@@ -328,7 +290,7 @@ class Peer:
 
 
     #--------------------------------------------------------------------------
-    def checklivepeers( self ):
+    def checkLivePeers( self ):
     #--------------------------------------------------------------------------
 	""" Attempts to ping all currently known peers in order to ensure that
 	they are still active. Removes any from the peer list that do
@@ -342,7 +304,7 @@ class Peer:
 		self.__debug( 'Check live %s' % pid )
 		host,port = self.peers[pid]
 		peerconn = PeerConnection( pid, host, port, debug=self.debug )
-		peerconn.senddata( 'PING', '' )
+		peerconn.sendData( 'PING', '' )
 		isconnected = True
 	    except:
 		self.__debug( 'Adding to delete %s' % pid )
@@ -358,14 +320,14 @@ class Peer:
 			self.__debug( 'Deleting %s' % pid )
 	finally:
 	    self.peerlock.release()
-    # end checklivepeers method
+    # end checkLivePeers method
 
 
 
     #--------------------------------------------------------------------------
-    def mainloop( self ):
+    def mainLoop( self ):
     #--------------------------------------------------------------------------
-	s = self.makeserversocket( self.serverport )
+	s = self.makeServerSocket( self.serverport )
 	s.settimeout(2)
 	self.__debug( 'Server started: %s (%s:%d)'
 		      % ( self.myid, self.serverhost, self.serverport ) )
@@ -376,11 +338,11 @@ class Peer:
 		clientsock, clientaddr = s.accept()
 		clientsock.settimeout(None)
 
-		t = threading.Thread( target = self.__handlepeer,
+		t = threading.Thread( target = self.__handlePeer,
 				      args = [ clientsock ] )
 		t.start()
 	    except KeyboardInterrupt:
-		print 'KeyboardInterrupt: stopping mainloop'
+		print 'KeyboardInterrupt: stopping mainLoop'
 		self.shutdown = True
 		continue
 	    except:
@@ -393,7 +355,7 @@ class Peer:
 
 	s.close()
 
-    # end mainloop method
+    # end mainLoop method
 
 # end Peer class
 
@@ -427,7 +389,7 @@ class PeerConnection:
 
 
     #--------------------------------------------------------------------------
-    def __makemsg( self, msgtype, msgdata ):
+    def __makeMsg( self, msgtype, msgdata ):
     #--------------------------------------------------------------------------
 	msglen = len(msgdata)
 	msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, str( msgdata ) )
@@ -442,17 +404,17 @@ class PeerConnection:
 
 
     #--------------------------------------------------------------------------
-    def senddata( self, msgtype, msgdata ):
+    def sendData( self, msgtype, msgdata ):
     #--------------------------------------------------------------------------
 	"""
-	senddata( message type, message data ) -> boolean status
+	sendData( message type, message data ) -> boolean status
 
 	Send a message through a peer connection. Returns True on success
 	or False if there was an error.
 	"""
 
 	try:
-	    msg = self.__makemsg( msgtype, msgdata )
+	    msg = self.__makeMsg( msgtype, msgdata )
 	    self.sd.write( msg )
 	    self.sd.flush()
 	except KeyboardInterrupt:
@@ -465,10 +427,10 @@ class PeerConnection:
 	    
 
     #--------------------------------------------------------------------------
-    def recvdata( self ):
+    def recvData( self ):
     #--------------------------------------------------------------------------
 	"""
-	recvdata() -> (msgtype, msgdata)
+	recvData() -> (msgtype, msgdata)
 
 	Receive a message from a peer connection. Returns (None, None)
 	if there was any error.
@@ -500,7 +462,7 @@ class PeerConnection:
 
 	return ( msgtype, msg )
 
-    # end recvdata method
+    # end recvData method
 
 
     #--------------------------------------------------------------------------

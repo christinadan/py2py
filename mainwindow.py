@@ -31,11 +31,10 @@ class MainWindow( QMainWindow ):
 		self.updatePeerList()
 		self.ui.portLabel.setText('Server Port: ' + self.connectionDialog.localPort)
 
-		t = threading.Thread( target = self.peer.mainloop, args = [] )
+		t = threading.Thread( target = self.peer.mainLoop, args = [] )
 		t.start()
 
-		self.peer.startstabilizer( self.peer.checklivepeers, 3 )
-		#self.peer.startstabilizer( self.onRefresh, 3 )
+		self.peer.startStabilizer( self.peer.checkLivePeers, 3 )
 		self.onTimer()
 
 	def connectSignals(self):
@@ -80,7 +79,7 @@ class MainWindow( QMainWindow ):
 		event.accept() # let the window close
 		
 	def updatePeerList( self ):
-		#If Peer list display has data, delete it then repopulate from self.peer.getpeerids()
+		#If Peer list display has data, delete it then repopulate from self.peer.getPeerIds()
 		if len( self.ui.peerList.selectedItems() ) > 0:
 			selectedItem = self.ui.peerList.selectedItems()[0].text()
 			print selectedItem
@@ -90,7 +89,7 @@ class MainWindow( QMainWindow ):
 		if self.ui.peerList.count() > 0:
 			self.ui.peerList.clear()
 
-		for p in self.peer.getpeerids():
+		for p in self.peer.getPeerIds():
 			row = self.ui.peerList.currentRow()+1
 			self.ui.peerList.insertItem( row, p )
 			if p.lstrip().rstrip() == selectedItem.lstrip().rstrip():
@@ -155,7 +154,7 @@ class MainWindow( QMainWindow ):
 		#Gets filename from Search field and queries the network using self.peer.sendtopeer
 		self.searchTerm = self.ui.searchLineEdit.text()
 
-		for p in self.peer.getpeerids():
+		for p in self.peer.getPeerIds():
 			self.peer.sendtopeer( p, QUERY, "%s %s 4" % ( self.peer.myid, str( self.searchTerm ) ) )
 	
 	def onDownload(self):
@@ -171,7 +170,7 @@ class MainWindow( QMainWindow ):
 			fileItemPath = self.ui.fileList.item( selectedRow, 1 ).data( Qt.UserRole )
 			if hostItem != '(local)':
 				host,port = hostItem.split(':')
-				resp = self.peer.connectandsend( host, int(port), FILEGET, str( fileItemPath ) )
+				resp = self.peer.connectAndSend( host, int(port), FILEGET, str( fileItemPath ) )
 				if len( resp ) and resp[0][0] == REPLY:
 					if not os.path.exists('Downloads'):
 						os.makedirs('Downloads')
@@ -213,7 +212,7 @@ class MainWindow( QMainWindow ):
 		except:
 			if self.peer.debug:
 				traceback.print_exc()
-				#         for peerid in self.peer.getpeerids():
-				#            host,port = self.peer.getpeer( peerid )
+				#         for peerid in self.peer.getPeerIds():
+				#            host,port = self.peer.getPeer( peerid )
 		self.ui.rebuildLineEdit.clear()
 				
