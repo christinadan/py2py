@@ -41,8 +41,8 @@ class MainWindow( QMainWindow ):
 	def connectSignals(self):
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
 		self.ui.actionRefresh.triggered.connect( self.onRefresh )
-		self.ui.actionDownload.triggered.connect( self.onDownload )
-		self.ui.fetchButton.clicked.connect( self.onDownload )
+		self.ui.actionDownload.triggered.connect( self.startDownload )
+		self.ui.fetchButton.clicked.connect( self.startDownload )
 		self.ui.searchButton.clicked.connect( self.onSearch )
 		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
 		self.ui.rebuildButton.clicked.connect( self.onRebuild )
@@ -180,6 +180,16 @@ class MainWindow( QMainWindow ):
 						self.peer.addlocalfile( os.path.abspath( fileItem ) )
 						self.updateFileList()
 					os.chdir( curDir )
+
+	#--------------------------------------------------------------------------
+	def startDownload(self):
+		#--------------------------------------------------------------------------
+		""" Registers and starts a download function with this peer. 
+		The function will be activated every <delay> seconds. 
+
+		"""
+		t = threading.Thread( target = self.onDownload, args = [] )
+		t.start()
 	
 	def onRefresh(self):
 		#Update peer and file list

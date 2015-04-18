@@ -416,8 +416,10 @@ class PeerConnection:
 	self.debug = debug
 
 	if not sock:
-	    self.s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-	    self.s.connect( ( host, int(port) ) )
+		self.s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+		self.s.settimeout(1)
+		self.s.connect( ( host, int(port) ) )
+		self.s.settimeout(None)
 	else:
 	    self.s = sock
 
