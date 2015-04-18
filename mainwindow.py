@@ -11,7 +11,7 @@ from filer import *
 class MainWindow( QMainWindow ):
 	def __init__( self, hops=2, master=None ):
 		super( MainWindow, self ).__init__()
-
+		
 		# Set up the user interface from Creator
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi( self )
@@ -56,9 +56,14 @@ class MainWindow( QMainWindow ):
 		fileDialog = QFileDialog( self )
 		fileDialog.setLabelText( QFileDialog.Accept, 'Upload' )
 		fileDialog.setWindowTitle( 'Choose a File to Upload' )
-		fileDialog.exec_()
-		filename = fileDialog.selectedFiles()[0]
-		if filename != "" and filename:
+		if fileDialog.exec_():
+			filename = fileDialog.selectedFiles()[0]
+		if os.path.getsize(filename) > 25000000: #25 Megabytes
+			 msgBox = QMessageBox(self);
+			 msgBox.setWindowTitle("py2py");
+			 msgBox.setText("File must be 25 Megabytes or less!");
+			 msgBox.exec_();
+		elif filename != "" and filename:
 			self.peer.addlocalfile( str( filename ) )
 		self.updateFileList()
 
