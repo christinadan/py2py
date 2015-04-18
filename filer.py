@@ -281,8 +281,8 @@ class FilerPeer(Peer):
 	#NOT YET WORKING
 	self.peerlock.acquire()
 	try:
-	    self.__debug('Listing files %d' % self.numberOfFiles())
-	    peerconn.sendData(REPLY, '%d' % self.numberOfFiles())
+	    self.__debug('Listing files %d' % self.len(files))
+	    peerconn.sendData(REPLY, '%d' % self.len(files))
 	    for fname in self.files.keys():
 		peerconn.sendData(REPLY, '%s' % (fname))
 	finally:
@@ -346,8 +346,3 @@ class FilerPeer(Peer):
 	self.files[filename] = None
 	self.__debug("Added local file %s" % filename)
 	
-	#--------------------------------------------------------------------------
-    def numberOfFiles( self ):
-    #--------------------------------------------------------------------------
-	""" Return the number of known peer's. """
-	return len(self.files)
