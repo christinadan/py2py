@@ -151,11 +151,11 @@ class MainWindow( QMainWindow ):
 		self.peer.files = files
 
 	def onSearch(self):
-		#Gets filename from Search field and queries the network using self.peer.sendtopeer
+		#Gets filename from Search field and queries the network using self.peer.sendToPeer
 		self.searchTerm = self.ui.searchLineEdit.text()
 
 		for p in self.peer.getPeerIds():
-			self.peer.sendtopeer( p, QUERY, "%s %s 4" % ( self.peer.myid, str( self.searchTerm ) ) )
+			self.peer.sendToPeer( p, QUERY, "%s %s 4" % ( self.peer.myid, str( self.searchTerm ) ) )
 	
 	def onDownload(self):
 		#Get currently selected file from GUI and retrieve said file from network
