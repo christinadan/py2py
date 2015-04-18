@@ -158,7 +158,7 @@ class FilerPeer(Peer):
 	    peerconn.sendData(ERROR, 'Query: incorrect arguments')
 	# self.peerlock.release()
 
-	t = threading.Thread(target=self.__processquery, 
+	t = threading.Thread(target=self.__processQuery, 
 			      args=[peerid, key, int(ttl)])
 	t.start()
 
