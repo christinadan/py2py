@@ -23,7 +23,7 @@ ERROR = "ERRO"
 #   peer id's in this application are just "host:port" strings
 
 #==============================================================================
-class FilerPeer(Peer):
+class PeerFileManager(Peer):
 #==============================================================================
     """ Implements a file-sharing peer-to-peer entity based on the generic
     P2P framework.
@@ -245,6 +245,7 @@ class FilerPeer(Peer):
 	    return
 	
 	peerconn.sendData(REPLY, filedata)
+
 
 
 

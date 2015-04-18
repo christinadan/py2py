@@ -6,7 +6,7 @@ from PyQt5.Qt import *
 from Generated.ui_mainwindow import Ui_MainWindow
 from connectiondialog import ConnectionDialog
 from random import *
-from filer import *
+from peerfilemanager import *
 
 class MainWindow( QMainWindow ):
 	def __init__( self, hops=2, master=None ):
@@ -24,7 +24,7 @@ class MainWindow( QMainWindow ):
 		self.connectionPopup()
 		#Add signal to do the rest of this in another function on connection dialog close event
 		#Initialize connection settings
-		self.peer = FilerPeer( int(self.connectionDialog.localPort) )
+		self.peer = PeerFileManager( int(self.connectionDialog.localPort) )
 
 		#check IP; if good IP, connect; else, use a default
 		self.peer.buildPeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
