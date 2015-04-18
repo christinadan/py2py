@@ -1,9 +1,3 @@
-#!/usr/bin/python
-
-#peer.py
-
-#Based off tutorial found at: http://cs.berry.edu/~nhamid/p2p/
-
 import socket
 import struct
 import threading
@@ -12,13 +6,11 @@ import traceback
 
 from peerconnection import *
 
-
 def debug( msg ):
 	#Print current thread and debug parameter to the console
 	print "[%s] %s" % ( str(threading.currentThread().getName()), msg )
 
 class Peer:
-
 	def __init__( self, serverport ):
 	
 		self.debug = 1	#Flag for debugging
@@ -206,5 +198,4 @@ class Peer:
 		s.close()
 
 		#end mainLoop
-
-#end Peer class
+		

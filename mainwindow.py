@@ -185,13 +185,8 @@ class MainWindow( QMainWindow ):
 						self.updateFileList()
 					os.chdir( curDir )
 
-	#--------------------------------------------------------------------------
 	def startDownload(self):
-		#--------------------------------------------------------------------------
-		""" Registers and starts a download function with this peer. 
-		The function will be activated every <delay> seconds. 
-
-		"""
+		#Starts download in a separate thread
 		t = threading.Thread( target = self.onDownload, args = [] )
 		t.start()
 	
@@ -212,7 +207,5 @@ class MainWindow( QMainWindow ):
 		except:
 			if self.peer.debug:
 				traceback.print_exc()
-				#         for peerid in self.peer.getPeerIds():
-				#            host,port = self.peer.getPeer( peerid )
 		self.ui.rebuildLineEdit.clear()
 				

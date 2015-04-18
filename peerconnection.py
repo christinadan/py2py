@@ -1,9 +1,3 @@
-#!/usr/bin/python
-
-#peerconnection.py
-
-#Based off tutorial found at: http://cs.berry.edu/~nhamid/p2p/
-
 import socket
 import struct
 import threading
