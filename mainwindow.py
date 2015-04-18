@@ -27,7 +27,7 @@ class MainWindow( QMainWindow ):
 		self.peer = FilerPeer( int(self.connectionDialog.localPort) )
 
 		#check IP; if good IP, connect; else, use a default
-		self.peer.buildpeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
+		self.peer.buildPeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
 		self.ui.portLabel.setText('Server Port: ' + self.connectionDialog.localPort)
 
@@ -63,7 +63,7 @@ class MainWindow( QMainWindow ):
 			 msgBox.setText("File must be 25 Megabytes or less!");
 			 msgBox.exec_();
 		elif filename != "" and filename:
-			self.peer.addlocalfile( str( filename ) )
+			self.peer.addLocalFile( str( filename ) )
 		self.updateFileList()
 
 	def onTimer( self ):
@@ -181,7 +181,7 @@ class MainWindow( QMainWindow ):
 					fd.close()
 					self.removeFile( fileItemPath )
 					if os.path.isfile( fileItem ):
-						self.peer.addlocalfile( os.path.abspath( fileItem ) )
+						self.peer.addLocalFile( os.path.abspath( fileItem ) )
 						self.updateFileList()
 					os.chdir( curDir )
 
@@ -201,14 +201,14 @@ class MainWindow( QMainWindow ):
 		self.updateFileList()
 	
 	def onRebuild(self):
-		#Get peerid from rebuild field and rebuild peer list using self.peer.buildpeers
+		#Get peerid from rebuild field and rebuild peer list using self.peer.buildPeers
 		peer = self.ui.rebuildLineEdit.text()
 		peer = peer.lstrip().rstrip()
 
 		try:
 			if peer != "":
 				host,port = peer.split(':')
-				self.peer.buildpeers( host, int(port), hops=3 )
+				self.peer.buildPeers( host, int(port), hops=3 )
 		except:
 			if self.peer.debug:
 				traceback.print_exc()
