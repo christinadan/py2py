@@ -45,14 +45,14 @@ class FilerPeer(Peer):
 
 	self.addRouter(self.__router)
 
-	handlers = {LISTPEERS : self.__handle_listpeers,
-		    INSERTPEER : self.__handle_insertpeer,
-		    PEERNAME: self.__handle_peername,
+	handlers = {LISTPEERS : self.__handle_listPeers,
+		    INSERTPEER : self.__handle_insertPeer,
+		    PEERNAME: self.__handle_peerName,
 		    QUERY: self.__handle_query,
-		    QRESPONSE: self.__handle_qresponse,
-		    FILEGET: self.__handle_fileget,
+		    QRESPONSE: self.__handle_qResponse,
+		    FILEGET: self.__handle_fileGet,
 		    PEERQUIT: self.__handle_quit,
-			LISTFILES : self.__handle_listfiles
+			LISTFILES : self.__handle_listFiles
 		   }
 	for mt in handlers:
 	    self.addHandler(mt, handlers[mt])
@@ -82,7 +82,7 @@ class FilerPeer(Peer):
 
 
     #--------------------------------------------------------------------------
-    def __handle_insertpeer(self, peerconn, data):
+    def __handle_insertPeer(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the INSERTPEER (join) message type. The message data
 	should be a string of the form, "peerid  host  port", where peer-id
@@ -110,12 +110,12 @@ class FilerPeer(Peer):
 	finally:
 	    self.peerlock.release()
 
-    # end handle_insertpeer method
+    # end handle_insertPeer method
 
 
 
     #--------------------------------------------------------------------------
-    def __handle_listpeers(self, peerconn, data):
+    def __handle_listPeers(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the LISTPEERS message type. Message data is not used. """
 	self.peerlock.acquire()
@@ -131,7 +131,7 @@ class FilerPeer(Peer):
 
 
     #--------------------------------------------------------------------------
-    def __handle_peername(self, peerconn, data):
+    def __handle_peerName(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the NAME message type. Message data is not used. """
 	peerconn.sendData(REPLY, self.myid)
@@ -166,7 +166,7 @@ class FilerPeer(Peer):
 
     # 
     #--------------------------------------------------------------------------
-    def __processquery(self, peerid, key, ttl):
+    def __processQuery(self, peerid, key, ttl):
     #--------------------------------------------------------------------------
 	""" Handles the processing of a query message after it has been 
 	received and acknowledged, by either replying with a QRESPONSE message
@@ -196,7 +196,7 @@ class FilerPeer(Peer):
 
 
     #--------------------------------------------------------------------------
-    def __handle_qresponse(self, peerconn, data):
+    def __handle_qResponse(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the QRESPONSE message type. The message data should be
 	in the format of a string, "file-name  peer-id", where file-name is
@@ -218,7 +218,7 @@ class FilerPeer(Peer):
 
 
     #--------------------------------------------------------------------------
-    def __handle_fileget(self, peerconn, data):
+    def __handle_fileGet(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the FILEGET message type. The message data should be in
 	the format of a string, "file-name", where file-name is the name
@@ -248,6 +248,7 @@ class FilerPeer(Peer):
 
 
 
+
     #--------------------------------------------------------------------------
     def __handle_quit(self, peerconn, data):
     #--------------------------------------------------------------------------
@@ -274,14 +275,14 @@ class FilerPeer(Peer):
 
 		
 	#--------------------------------------------------------------------------
-    def __handle_listfiles(self, peerconn, data):
+    def __handle_listFiles(self, peerconn, data):
     #--------------------------------------------------------------------------
 	""" Handles the LISTFILES message type. Message data is not used. """
 	#NOT YET WORKING
 	self.peerlock.acquire()
 	try:
-	    self.__debug('Listing files %d' % self.numberoffiles())
-	    peerconn.sendData(REPLY, '%d' % self.numberoffiles())
+	    self.__debug('Listing files %d' % self.numberOfFiles())
+	    peerconn.sendData(REPLY, '%d' % self.numberOfFiles())
 	    for fname in self.files.keys():
 		peerconn.sendData(REPLY, '%s' % (fname))
 	finally:
@@ -291,9 +292,9 @@ class FilerPeer(Peer):
     # precondition: may be a good idea to hold the lock before going
     #               into this function
     #--------------------------------------------------------------------------
-    def buildpeers(self, host, port, hops=1):
+    def buildPeers(self, host, port, hops=1):
     #--------------------------------------------------------------------------
-	""" buildpeers(host, port, hops) 
+	""" buildPeers(host, port, hops) 
 
 	Attempt to build the local peer list, using a simple depth-first search given an
 	initial host and port as starting point. The depth of the
@@ -330,7 +331,7 @@ class FilerPeer(Peer):
 		while len(resp):
 		    nextpid,host,port = resp.pop()[1].split()
 		    if nextpid != self.myid:
-			self.buildpeers(host, port, hops - 1)
+			self.buildPeers(host, port, hops - 1)
 	except:
 	    if self.debug:
 		traceback.print_exc()
@@ -339,14 +340,14 @@ class FilerPeer(Peer):
 
 
     #--------------------------------------------------------------------------
-    def addlocalfile(self, filename):
+    def addLocalFile(self, filename):
     #--------------------------------------------------------------------------
 	""" Registers a locally-stored file with the peer. """
 	self.files[filename] = None
 	self.__debug("Added local file %s" % filename)
 	
 	#--------------------------------------------------------------------------
-    def numberoffiles( self ):
+    def numberOfFiles( self ):
     #--------------------------------------------------------------------------
 	""" Return the number of known peer's. """
 	return len(self.files)
