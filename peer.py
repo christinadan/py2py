@@ -86,9 +86,9 @@ class Peer:
 	"""
 
 	self.__debug( 'New child ' + str(threading.currentThread().getName()) )
-	self.__debug( 'Connected ' + str(clientsock.getPeerName()) )
+	self.__debug( 'Connected ' + str(clientsock.getpeername()) )
 
-	host, port = clientsock.getPeerName()
+	host, port = clientsock.getpeername()
 	peerconn = PeerConnection( None, host, port, clientsock, debug=False )
 	
 	try:
@@ -105,7 +105,7 @@ class Peer:
 	    if self.debug:
 		traceback.print_exc()
 	
-	self.__debug( 'Disconnecting ' + str(clientsock.getPeerName()) )
+	self.__debug( 'Disconnecting ' + str(clientsock.getpeername()) )
 	peerconn.close()
 
     # end handlePeer method
