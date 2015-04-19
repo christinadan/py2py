@@ -38,6 +38,7 @@ class MainWindow( QMainWindow ):
 		self.onTimer()
 
 	def connectSignals(self):
+		#Connect GUI buttons/fields to backend functions
 		self.ui.actionUpload.triggered.connect( self.fileSelect )
 		self.ui.actionRefresh.triggered.connect( self.onRefresh )
 		self.ui.actionDownload.triggered.connect( self.startDownload )
@@ -48,31 +49,32 @@ class MainWindow( QMainWindow ):
 		self.ui.clearAllButton.clicked.connect( self.onClearAll )
 		
 	def connectionPopup(self):
+		#Prompt user for input
 		self.connectionDialog = ConnectionDialog()
 		self.connectionDialog.exec_()
 
 	def fileSelect(self):
+		#Create a new file dialog where user can select file from computer
 		fileDialog = QFileDialog( self )
 		fileDialog.setLabelText( QFileDialog.Accept, 'Upload' )
 		fileDialog.setWindowTitle( 'Choose a File to Upload' )
 		if fileDialog.exec_():
 			filename = fileDialog.selectedFiles()[0]
-		if os.path.getsize(filename) > 25000000: #25 Megabytes
+		if os.path.getsize(filename) > 25000000: #25 Megabytes is max file size
 			 msgBox = QMessageBox(self);
 			 msgBox.setWindowTitle("py2py");
 			 msgBox.setText("File must be 25 Megabytes or less!");
 			 msgBox.exec_();
 		elif filename != "" and filename:
-			self.peer.addLocalFile( str( filename ) )
+			self.peer.addLocalFile( str( filename ) )	#If upload is legitimate, add to local list
 		self.updateFileList()
 
 	def onTimer( self ):
 		#Refresh every 3 seconds
 		try:
-			# Do things
 			self.onRefresh()
 		finally:
-			QTimer.singleShot(3000, self.onTimer)
+			QTimer.singleShot(3000, self.onTimer)	#Recursive call to onTimer()
 		
 	def closeEvent(self, event):
 		self.peer.shutdown = True
@@ -109,12 +111,12 @@ class MainWindow( QMainWindow ):
 			
 		row = 0
 		for f in self.peer.files:
-			print f
+			#If file isn't local, strip absolute path from name so user only sees name of file and not it's path
 			p = self.peer.files[f]
 			if not p:
 				p = '(local)'
 
-			f.rstrip('\/')
+			f.rstrip('\/')	#Strip rightmost slash out of name
 			head, tail = os.path.split( f )
 			hostItem = QTableWidgetItem( p )
 			fileItem = QTableWidgetItem( tail )
@@ -143,6 +145,7 @@ class MainWindow( QMainWindow ):
 		self.updateFileList()
 
 	def removeFile(self, fileToRemove):
+		#Removes file from list
 		files = {}
 		for f in self.peer.files:
 			p = self.peer.files[f]
@@ -172,6 +175,7 @@ class MainWindow( QMainWindow ):
 				host,port = hostItem.split(':')
 				resp = self.peer.connectAndSend( host, int(port), FILEGET, str( fileItemPath ) )
 				if len( resp ) and resp[0][0] == REPLY:
+					#Make Downloads folder if it doesn't exist, then write file there
 					if not os.path.exists('Downloads'):
 						os.makedirs('Downloads')
 					curDir = os.getcwd()
@@ -180,13 +184,14 @@ class MainWindow( QMainWindow ):
 					fd.write( resp[0][1] )
 					fd.close()
 					self.removeFile( fileItemPath )
+					#Update file in file list as now being local
 					if os.path.isfile( fileItem ):
 						self.peer.addLocalFile( os.path.abspath( fileItem ) )
 						self.updateFileList()
 					os.chdir( curDir )
 
 	def startDownload(self):
-		#Starts download in a separate thread
+		#Starts download in a separate thread, keeps GUI from hanging when download requests come in
 		t = threading.Thread( target = self.onDownload, args = [] )
 		t.start()
 	
