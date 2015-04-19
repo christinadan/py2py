@@ -144,30 +144,30 @@ class Peer:
 		#end connectAndSend
 
 	def checkLivePeers( self ):
-		#Used as stabilizer function to ping a peer, if no reponse is received, then peer is removed from list
+		#Used as stabilizer function to ping all known peers, if no reponse is received, then peer is removed from list
 		todelete = []
 		for pid in self.peers:
 			isconnected = False
 			try:
 				self.__debug( 'Check live %s' % pid )
 				host,port = self.peers[pid]
-				peerconn = PeerConnection( pid, host, port, debug=self.debug )
+				peerconn = PeerConnection( pid, host, port, debug=self.debug )	#Create a new connection and send a ping
 				peerconn.sendData( 'PING', '' )
 				isconnected = True
 			except:
-				self.__debug( 'Adding to delete %s' % pid )
+				self.__debug( 'Adding to delete %s' % pid )	#Notify that peer was added to delete list
 				todelete.append( pid )
 			if isconnected:
 				peerconn.close()
 
-		self.peerlock.acquire()
+		self.peerlock.acquire()	#Important to acquire lock on list, otherwise other threads could overwrite our changes
 		try:
 			for pid in todelete: 
 				if pid in self.peers: 
 					del self.peers[pid]
-					self.__debug( 'Deleting %s' % pid )
+					self.__debug( 'Deleting %s' % pid )	#Log the deletion
 		finally:
-			self.peerlock.release()
+			self.peerlock.release()	#Don't forget to release lock on list
 		#end checkLivePeers
 
 	def mainLoop( self ):

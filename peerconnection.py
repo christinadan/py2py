@@ -9,11 +9,12 @@ from peer import *
 class PeerConnection:
 	
 	def __init__( self, peerid, host, port, sock=None, debug=False ):
-		# any exceptions thrown upwards
+		# any exceptions thrown upwards and caught by exception handlers for functions creating peerconnections
 		self.id = peerid
 		self.debug = debug
 
 		if not sock:
+			#Create a new socket if we weren't passed one, and connect to host
 			self.s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 			self.s.settimeout(1)
 			self.s.connect( ( host, int(port) ) )
@@ -26,7 +27,7 @@ class PeerConnection:
 	def __makeMsg( self, msgtype, msgdata ):
 		#Constructs message into packet to be sent
 		msglen = len(msgdata)
-		msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, str( msgdata ) )
+		msg = struct.pack( "!4sL%ds" % msglen, msgtype, msglen, str( msgdata ) )	#Typecast msgdata as string so it handles input/payloads correctly
 		return msg
 
 	def __debug( self, msg ):
@@ -55,9 +56,10 @@ class PeerConnection:
 			if not msgtype: return (None, None)
 			
 			lenstr = self.sd.read( 4 )
-			msglen = int(struct.unpack( "!L", lenstr )[0])
+			msglen = int(struct.unpack( "!L", lenstr )[0])	#Unpack length from packet
 			msg = ""
 
+			#Read entire message packet
 			while len(msg) != msglen:
 				data = self.sd.read( min(2048, msglen - len(msg)) )
 				if not len(data):
