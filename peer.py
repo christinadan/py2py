@@ -15,10 +15,19 @@ class Peer:
 	
 		self.debug = 1	#Flag for debugging
 		self.serverport = int(serverport) #Port obtained from GUI
-		s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )	#Ping google to get our IP address
-		s.connect( ( "www.google.com", 80 ) )
-		self.serverhost = s.getsockname()[0]
-		s.close()
+		try:
+			s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )	#Ping google to get our IP address
+			s.settimeout(2)
+			s.connect( ( "8.8.8.8", 80 ) )
+			self.serverhost = s.getsockname()[0]
+			s.close()
+		except:
+			if(socket.gethostbyname(socket.gethostname())=="127.0.0.1"):
+				self.serverhost = socket.gethostbyname(socket.getfqdn())
+			else:
+				self.serverhost = socket.gethostbyname(socket.gethostname())
+			if self.debug:
+				traceback.print_exc()
 		self.myid = '%s:%d' % (self.serverhost, self.serverport) #concat ip and port to define peerId
 		self.peerlock = threading.Lock()	#Define a thread lock attribute
 		self.peers = {}	#Define empty list for peers
