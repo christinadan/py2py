@@ -191,7 +191,7 @@ class PeerFileManager(Peer):
 			self.__debug('Listing %d files' % len(self.files))
 			peerconn.sendData(REPLY, '%d' % len(self.files))
 			for fname in self.files.keys():
-				if fname == '(local)':
+				if self.files[fname] == None:
 					self.__debug('%s' % file)
 					peerconn.sendData(REPLY, '%s' % (fname))
 		finally:
