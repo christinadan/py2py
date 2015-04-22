@@ -262,7 +262,7 @@ class PeerFileManager(Peer):
 					resp.reverse()
 					resp.pop()	# get rid of header count reply
 					while len(resp):
-						filename = resp.pop()[0]
+						filename = resp.pop()[1]
 						self.files[filename] = pid
 		except:
 			#If something breaks get out
