@@ -147,7 +147,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Server Port: blah</string>
+              <string>My IP:Port:</string>
              </property>
             </widget>
            </item>
