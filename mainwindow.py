@@ -50,6 +50,7 @@ class MainWindow( QMainWindow ):
 		self.ui.searchLineEdit.returnPressed.connect( self.onSearch )
 		self.ui.rebuildButton.clicked.connect( self.onRebuild )
 		self.ui.clearAllButton.clicked.connect( self.onClearAll )
+		self.ui.showAllButton.clicked.connect( self.onShowAll )
 		
 	def connectionPopup(self):
 		#Prompt user for input
@@ -158,6 +159,7 @@ class MainWindow( QMainWindow ):
 
 	def onSearch(self):
 		#Gets filename from Search field and queries the network using self.peer.sendToPeer
+		self.onClearAll()
 		self.searchTerm = self.ui.searchLineEdit.text()
 
 		for p in self.peer.getPeerIds():
@@ -216,4 +218,10 @@ class MainWindow( QMainWindow ):
 			if self.peer.debug:
 				traceback.print_exc()
 		self.ui.rebuildLineEdit.clear()
+		
+	def onShowAll(self):
+		#Clears displayed file list and then queries network for all files
+		self.onClearAll()
+		self.peer.buildFiles()
+		self.updateFileList()
 				
