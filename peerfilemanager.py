@@ -188,9 +188,10 @@ class PeerFileManager(Peer):
 
 		self.peerlock.acquire()
 		try:
-			self.__debug('Listing files %d' % self.len(files))
+			self.__debug('Listing %d files' % self.len(files))
 			peerconn.sendData(REPLY, '%d' % self.len(files))
 			for fname in self.files.keys():
+				self.__debug('%s' % file)
 				peerconn.sendData(REPLY, '%s' % (fname))
 		finally:
 			self.peerlock.release()
@@ -198,6 +199,7 @@ class PeerFileManager(Peer):
 	def buildPeers(self, host, port, hops=1):
 	#Builds local peer list using a depth first search method
 
+		#Base case for recursion
 		if not hops:
 			return
 
@@ -208,31 +210,64 @@ class PeerFileManager(Peer):
 		try:
 			_, peerid = self.connectAndSend(host, port, PEERNAME, '')[0]
 
-			self.__debug("contacted " + peerid)
+			self.__debug("Contacted " + peerid)
+			#Ask peer we're contacting to add us to their peerlist
 			resp = self.connectAndSend(host, port, INSERTPEER, 
 										'%s %s %d' % (self.myid, 
 												  self.serverhost, 
 												  self.serverport))[0]
 			self.__debug(str(resp))
+			#If they don't respond to us the break
 			if (resp[0] != REPLY) or (peerid in self.getPeerIds()):
 				return
-
+			#If they respond then add them to our list as well
 			self.addPeer(peerid, host, port)
 
-			# do recursive depth first search to add more peers
+			#Do recursive depth first search to add more peers
+			#Request a list of peers from whoever we're talking to 
 			resp = self.connectAndSend(host, port, LISTPEERS, '',
 										pid=peerid)
+			#If their list is > 1 (i.e. contains more than just us) then parse their list
+			#and call buildPeers on each peer in list
 			if len(resp) > 1:
 				resp.reverse()
 				resp.pop()	# get rid of header count reply
 				while len(resp):
 					nextpid,host,port = resp.pop()[1].split()
+					#Don't try to talk to ourselves
 					if nextpid != self.myid:
 						self.buildPeers(host, port, hops - 1)
 		except:
+			#If something breaks throw peer away
 			if self.debug:
 				traceback.print_exc()
 			self.removePeer(peerid)
+			
+	def buildFiles(self):
+		#Builds local file list by going through our peer list and requesting a file list from each one
+		self.__debug("Building files")
+
+		try:
+			for pid in self.getPeerIds():
+				host,port = self.getPeer(pid)
+
+				self.__debug("Contacted " + pid)
+				
+				#Request a list of files from whoever we're talking to 
+				resp = self.connectAndSend(host, port, LISTFILES, '',
+											pid)
+				#If their list is > 0 (i.e. contains some files) then parse their list
+				#and add each individual file to our own list
+				if len(resp) > 0:
+					resp.reverse()
+					resp.pop()	# get rid of header count reply
+					while len(resp):
+						filename = resp.pop()[0]
+						self.files[filename] = pid
+		except:
+			#If something breaks get out
+			if self.debug:
+				traceback.print_exc()
 
 	def addLocalFile(self, filename):
 	#Updates filelist to notify user that the file is now local

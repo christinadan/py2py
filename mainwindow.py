@@ -30,6 +30,9 @@ class MainWindow( QMainWindow ):
 		self.peer.buildPeers( self.connectionDialog.peerHost, int(self.connectionDialog.peerPort), hops=hops )
 		self.updatePeerList()
 		self.ui.portLabel.setText('My IP:Port is ' + self.peer.myid)
+		
+		self.peer.buildFiles()
+		self.updateFileList()
 
 		t = threading.Thread( target = self.peer.mainLoop, args = [] )
 		t.start()
