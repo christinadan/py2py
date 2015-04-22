@@ -191,8 +191,9 @@ class PeerFileManager(Peer):
 			self.__debug('Listing %d files' % len(self.files))
 			peerconn.sendData(REPLY, '%d' % len(self.files))
 			for fname in self.files.keys():
-				self.__debug('%s' % file)
-				peerconn.sendData(REPLY, '%s' % (fname))
+				if filename == '(local)'
+					self.__debug('%s' % file)
+					peerconn.sendData(REPLY, '%s' % (fname))
 		finally:
 			self.peerlock.release()
 
