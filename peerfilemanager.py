@@ -188,8 +188,8 @@ class PeerFileManager(Peer):
 
 		self.peerlock.acquire()
 		try:
-			self.__debug('Listing %d files' % self.len(files))
-			peerconn.sendData(REPLY, '%d' % self.len(files))
+			self.__debug('Listing %d files' % len(self.files))
+			peerconn.sendData(REPLY, '%d' % len(self.files))
 			for fname in self.files.keys():
 				self.__debug('%s' % file)
 				peerconn.sendData(REPLY, '%s' % (fname))
