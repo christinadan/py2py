@@ -89,7 +89,6 @@ class MainWindow( QMainWindow ):
 		#If Peer list display has data, delete it then repopulate from self.peer.getPeerIds()
 		if len( self.ui.peerList.selectedItems() ) > 0:
 			selectedItem = self.ui.peerList.selectedItems()[0].text()
-			print selectedItem
 		else:
 			selectedItem = ""
 
@@ -193,7 +192,7 @@ class MainWindow( QMainWindow ):
 					self.removeFile( fileItemPath )
 					#Update file in file list as now being local
 					if os.path.isfile( fileItem ):
-						self.peer.addLocalFile( os.path.abspath( fileItem ) )
+						self.peer.addLocalFile( str(os.path.abspath( fileItem )).replace("\\","/"))
 						self.updateFileList()
 					os.chdir( curDir )
 				end = time.time()
