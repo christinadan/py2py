@@ -1,6 +1,7 @@
 import sys
 import threading
 import os
+import time
 
 from PyQt5.Qt import *
 from Generated.ui_mainwindow import Ui_MainWindow
@@ -178,6 +179,7 @@ class MainWindow( QMainWindow ):
 			fileItemPath = self.ui.fileList.item( selectedRow, 1 ).data( Qt.UserRole )
 			if hostItem != '(local)':
 				host,port = hostItem.split(':')
+				start = time.time()
 				resp = self.peer.connectAndSend( host, int(port), FILEGET, str( fileItemPath ) )
 				if len( resp ) and resp[0][0] == REPLY:
 					#Make Downloads folder if it doesn't exist, then write file there
@@ -194,6 +196,11 @@ class MainWindow( QMainWindow ):
 						self.peer.addLocalFile( os.path.abspath( fileItem ) )
 						self.updateFileList()
 					os.chdir( curDir )
+				end = time.time()
+				diff = end-start
+				fd = file( 'debug.log', 'ab')
+				fd.write( 'Transfer of file ' + str(fileItem) + ' from ' + hostItem + ' took ' + str(diff) + ' seconds. \r\n')
+				fd.close()
 
 	def startDownload(self):
 		#Starts download in a separate thread, keeps GUI from hanging when download requests come in
