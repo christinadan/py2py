@@ -194,11 +194,12 @@ class MainWindow( QMainWindow ):
 					if os.path.isfile( fileItem ):
 						self.peer.addLocalFile( str(os.path.abspath( fileItem )).replace("\\","/"))
 						self.updateFileList()
+						fileSize = os.path.getsize(fileItem)/1000
 					os.chdir( curDir )
 				end = time.time()
 				diff = end-start
 				fd = file( 'debug.log', 'ab')
-				fd.write( 'Transfer of file ' + str(fileItem) + ' from ' + hostItem + ' took ' + str(diff) + ' seconds. \r\n')
+				fd.write( 'Transfer of file ' + str(fileItem) + ' (' + str(fileSize) + 'KB) from ' + hostItem + ' took ' + str(diff) + ' seconds. Throughput of ' + str(fileSize/diff) + 'KB/s\r\n')
 				fd.close()
 
 	def startDownload(self):
