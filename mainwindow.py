@@ -198,7 +198,7 @@ class MainWindow( QMainWindow ):
 					os.chdir( curDir )
 				end = time.time()
 				diff = end-start
-				fd = file( 'debug.log', 'ab')
+				fd = file( 'analysis.log', 'ab')
 				fd.write( 'Transfer of file ' + str(fileItem) + ' (' + str(fileSize) + 'KB) from ' + hostItem + ' took ' + str(diff) + ' seconds. Throughput of ' + str(fileSize/diff) + 'KB/s\r\n')
 				fd.close()
 
