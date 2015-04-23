@@ -13,7 +13,7 @@ def debug( msg ):
 class Peer:
 	def __init__( self, serverport ):
 	
-		self.debug = 1	#Flag for debugging
+		self.debug = 0	#Flag for debugging
 		self.serverport = int(serverport) #Port obtained from GUI
 		try:
 			s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )	#Ping google to get our IP address
